@@ -1,209 +1,339 @@
 # C4 Model — نظام نقاط بيع شامل (POS Platform)
-> هذا المستند بصيغة **Markdown** ويحتوي على مخططات **Mermaid (mmd)** وفق مستويات C4 (Context, Container, Component, Deployment + Dynamic).  
+
+> هذا المستند بصيغة **Markdown** ويحتوي على مخططات **Mermaid** وفق مستويات C4 (Context, Container, Component, Deployment + Dynamic).  
 > المكوّنات مستخلصة من نطاق العمل: POS للصراف، مرتجعات، مخزون، مشتريات، محاسبة أساسية، تقارير، أمان متقدم، Offline‑First، تكاملات دفع/رسائل، طباعة حرارية.
 
 ---
 
+## محتويات المستند
+
+1. [Level 1 — System Context](#level-1--system-context-نطاق-النظام-وعلاقاته)
+2. [Level 2 — Container Diagram](#level-2--container-diagram-حاويات-النظام)
+3. [Level 3 — Component Diagram](#level-3--component-diagram-داخل-backend-api)
+4. [Level 4 — Deployment Diagram](#level-4--deployment-diagram-النشر-والتشغيل)
+5. [Dynamic — سيناريو: بيع Offline ثم مزامنة](#dynamic--سيناريو-بيع-offline-ثم-مزامنة)
+
+---
+
 ## Level 1 — System Context (نطاق النظام وعلاقاته)
+
+يوضح هذا المستوى العلاقات بين النظام والأنظمة الخارجية والمستخدمين.
+
 ```mermaid
-C4Context
-title POS Platform — System Context
-
-Person_Ext(customer, "العميل", "يتلقى فواتير/إشعارات ويُراجع مشترياته")
-Person(cashier, "الصراف", "يجري عمليات البيع من واجهة نقاط البيع POS")
-Person(manager, "مدير الفرع/النظام", "يدير الأصناف والمخزون والصلاحيات والتقارير")
-Person(accountant, "المحاسب", "يراجع القيود والسندات والتقارير المحاسبية")
-
-System_Boundary(pos, "POS Platform") {
-  System(system, "نظام نقاط البيع", "PWA + Admin + API", "بيع، مرتجعات، مخزون، مشتريات، محاسبة، تقارير، Offline")
-}
-
-System_Ext(payment, "بوابة الدفع", "معالجة مدفوعات البطاقة/المحفظة")
-System_Ext(sms, "موفّر الرسائل/البريد", "OTP/إشعارات/مشاركة فواتير")
-System_Ext(ext_acc, "نظام محاسبي خارجي (اختياري)", "تكامل محاسبي بديل")
-System_Ext(whatsapp, "واجهة واتساب للأعمال (اختياري)", "مشاركة روابط الفواتير/الإشعارات")
-
-Rel(cashier, system, "يستخدم لإتمام عمليات البيع/الإرجاع")
-Rel(manager, system, "إدارة أصناف/أسعار/ضرائب/مخزون/مستخدمين/تقارير")
-Rel(accountant, system, "مراجعة القيود والسندات/التسويات/الإقفال")
-Rel(system, customer, "إرسال فواتير/إشعارات", "رابط/QR/ملف PDF")
-Rel(system, payment, "معالجة المدفوعات", "HTTPS/API")
-Rel(system, sms, "إرسال OTP/إشعارات", "HTTPS/API")
-Rel(system, whatsapp, "مشاركة روابط الفواتير", "HTTPS/API")
-Rel(system, ext_acc, "تكامل محاسبي (إن فُعِّل)", "HTTPS/API")
+graph TB
+    subgraph users["المستخدمون"]
+        customer["👤 العميل<br/>يتلقى فواتير/إشعارات<br/>ويُراجع مشترياته"]
+        cashier["👤 الصراف<br/>يجري عمليات البيع من<br/>واجهة نقاط البيع POS"]
+        manager["👤 مدير الفرع/النظام<br/>يدير الأصناف والمخزون<br/>والصلاحيات والتقارير"]
+        accountant["👤 المحاسب<br/>يراجع القيود والسندات<br/>والتقارير المحاسبية"]
+    end
+    
+    subgraph posplatform["POS Platform"]
+        system["🖥️ نظام نقاط البيع<br/>PWA + Admin + API<br/>بيع، مرتجعات، مخزون<br/>مشتريات، محاسبة، تقارير، Offline"]
+    end
+    
+    subgraph externalsystems["الأنظمة الخارجية"]
+        payment["💳 بوابة الدفع<br/>معالجة مدفوعات<br/>البطاقة/المحفظة"]
+        sms["📱 موفّر الرسائل/البريد<br/>OTP/إشعارات<br/>مشاركة فواتير"]
+        extacc["📊 نظام محاسبي خارجي<br/>اختياري<br/>تكامل محاسبي بديل"]
+        whatsapp["💬 واتساب للأعمال<br/>اختياري<br/>مشاركة روابط الفواتير"]
+    end
+    
+    cashier -->|يستخدم لإتمام<br/>عمليات البيع/الإرجاع| system
+    manager -->|إدارة أصناف/أسعار/ضرائب<br/>مخزون/مستخدمين/تقارير| system
+    accountant -->|مراجعة القيود والسندات<br/>التسويات/الإقفال| system
+    system -->|إرسال فواتير/إشعارات<br/>رابط/QR/ملف PDF| customer
+    system -->|معالجة المدفوعات<br/>HTTPS/API| payment
+    system -->|إرسال OTP/إشعارات<br/>HTTPS/API| sms
+    system -->|مشاركة روابط الفواتير<br/>HTTPS/API| whatsapp
+    system -.->|تكامل محاسبي<br/>إن فُعِّل - HTTPS/API| extacc
+    
+    classDef userStyle fill:#08427b,stroke:#052e56,color:#fff,stroke-width:2px
+    classDef systemStyle fill:#1168bd,stroke:#0b4884,color:#fff,stroke-width:3px
+    classDef externalStyle fill:#999999,stroke:#6b6b6b,color:#fff,stroke-width:2px
+    
+    class customer,cashier,manager,accountant userStyle
+    class system systemStyle
+    class payment,sms,extacc,whatsapp externalStyle
 ```
+
 ---
 
 ## Level 2 — Container Diagram (حاويات النظام)
+
+يوضح هذا المستوى الحاويات (التطبيقات والخدمات) التي تشكل النظام والعلاقات بينها.
+
 ```mermaid
-C4Container
-title POS Platform — Containers
-
-Person(cashier, "الصراف")
-Person(manager, "مدير النظام")
-Person(accountant, "المحاسب")
-
-System_Boundary(pos, "POS Platform") {
-  Container(pwa, "POS Frontend (PWA)", "React/TS + IndexedDB", "واجهة الصراف، Offline‑First، كاميرا باركود، طباعة/مشاركة")
-  Container(admin, "Admin Dashboard", "React/TS", "لوحة إدارة المنتجات/الأسعار/المخازن/المستخدمين/التقارير")
-  Container(api, "Backend API", "NestJS (REST/OpenAPI)", "خدمات المبيعات، المرتجعات، المخزون، المشتريات، المحاسبة، التقارير")
-  Container(sync, "Sync/Worker", "Node + Queues", "طوابير مزامنة، معالجة تغييرات Offline، حل التعارضات")
-  ContainerDb(db, "Relational DB", "PostgreSQL", "بيانات أساسية/حركات/قيود/سندات/تقارير")
-  Container(cache, "Cache/Queue", "Redis", "Caching، Pub/Sub، طوابير مهام")
-  Container(store, "Object Storage", "S3-compatible", "حفظ PDF الفواتير/التقارير والقوالب")
-  Container(monitor, "Observability", "APM/Logs/Metrics", "مراقبة، سجلات، تنبيهات")
-  Container(printBridge, "Print Bridge (اختياري)", "Desktop Service", "جسر طباعة ESC/POS/USB عند الحاجة")
-  Container(adapterPay, "Payment Adapter", "Service/Module", "تغليف تكامل بوابة الدفع")
-  Container(adapterNotif, "Notification Adapter", "Service/Module", "SMS/Email/WhatsApp")
-}
-
-System_Ext(payment, "بوابة الدفع", "API")
-System_Ext(sms, "SMS/Email Provider", "API")
-System_Ext(whatsapp, "WhatsApp Business", "API")
-
-Rel(cashier, pwa, "استخدام يومي")
-Rel(manager, admin, "إدارة وتشغيل")
-Rel(accountant, admin, "مراجعات محاسبية")
-
-Rel(pwa, api, "REST/JSON")
-Rel(admin, api, "REST/JSON")
-Rel(api, db, "ORM/SQL", "CRUD/Queries")
-Rel(api, cache, "Cache/Queues")
-Rel(sync, db, "Change Feed/SQL")
-Rel(sync, cache, "Queues (Jobs)")
-Rel(api, store, "رفع/قراءة ملفات PDF/قوالب")
-Rel(api, adapterPay, "معالجة دفع")
-Rel(api, adapterNotif, "إرسال إشعارات")
-Rel(adapterPay, payment, "HTTPS/API")
-Rel(adapterNotif, sms, "HTTPS/API")
-Rel(adapterNotif, whatsapp, "HTTPS/API")
-Rel(pwa, printBridge, "طباعة حرارية (محلي)")
+graph TB
+    subgraph users["المستخدمون"]
+        cashier["👤 الصراف"]
+        manager["👤 مدير النظام"]
+        accountant["👤 المحاسب"]
+    end
+    
+    subgraph posplatform["POS Platform"]
+        subgraph frontend["Frontend Applications"]
+            pwa["📱 POS Frontend PWA<br/>React/TS + IndexedDB<br/>واجهة الصراف، Offline‑First<br/>كاميرا باركود، طباعة/مشاركة"]
+            admin["🖥️ Admin Dashboard<br/>React/TS<br/>لوحة إدارة المنتجات/الأسعار<br/>المخازن/المستخدمين/التقارير"]
+        end
+        
+        subgraph backend["Backend Services"]
+            api["⚙️ Backend API<br/>NestJS REST/OpenAPI<br/>خدمات المبيعات، المرتجعات<br/>المخزون، المشتريات، المحاسبة، التقارير"]
+            sync["🔄 Sync/Worker<br/>Node + Queues<br/>طوابير مزامنة، معالجة تغييرات Offline<br/>حل التعارضات"]
+        end
+        
+        subgraph data["Data Layer"]
+            db[("💾 Relational DB<br/>PostgreSQL<br/>بيانات أساسية/حركات<br/>قيود/سندات/تقارير")]
+            cache["⚡ Cache/Queue<br/>Redis<br/>Caching، Pub/Sub<br/>طوابير مهام"]
+            store["📦 Object Storage<br/>S3-compatible<br/>حفظ PDF الفواتير<br/>التقارير والقوالب"]
+        end
+        
+        subgraph adapters["Adapters & Integrations"]
+            adapterpay["💳 Payment Adapter<br/>Service/Module<br/>تغليف تكامل بوابة الدفع"]
+            adapternotif["📧 Notification Adapter<br/>Service/Module<br/>SMS/Email/WhatsApp"]
+        end
+        
+        subgraph optional["Optional Services"]
+            monitor["📊 Observability<br/>APM/Logs/Metrics<br/>مراقبة، سجلات، تنبيهات"]
+            printbridge["🖨️ Print Bridge<br/>Desktop Service<br/>جسر طباعة ESC/POS/USB"]
+        end
+    end
+    
+    subgraph external["External Services"]
+        payment["💳 بوابة الدفع<br/>API"]
+        smsext["📱 SMS/Email Provider<br/>API"]
+        whatsapp["💬 WhatsApp Business<br/>API"]
+    end
+    
+    cashier -->|استخدام يومي| pwa
+    manager -->|إدارة وتشغيل| admin
+    accountant -->|مراجعات محاسبية| admin
+    
+    pwa -->|REST/JSON| api
+    admin -->|REST/JSON| api
+    api -->|ORM/SQL<br/>CRUD/Queries| db
+    api -->|Cache/Queues| cache
+    sync -->|Change Feed/SQL| db
+    sync -->|Queues Jobs| cache
+    api -->|رفع/قراءة ملفات<br/>PDF/قوالب| store
+    api -->|معالجة دفع| adapterpay
+    api -->|إرسال إشعارات| adapternotif
+    adapterpay -->|HTTPS/API| payment
+    adapternotif -->|HTTPS/API| smsext
+    adapternotif -->|HTTPS/API| whatsapp
+    pwa -.->|طباعة حرارية محلي| printbridge
+    
+    classDef userStyle fill:#08427b,stroke:#052e56,color:#fff,stroke-width:2px
+    classDef containerStyle fill:#1168bd,stroke:#0b4884,color:#fff,stroke-width:2px
+    classDef dataStyle fill:#438dd5,stroke:#2e6295,color:#fff,stroke-width:2px
+    classDef externalStyle fill:#999999,stroke:#6b6b6b,color:#fff,stroke-width:2px
+    
+    class cashier,manager,accountant userStyle
+    class pwa,admin,api,sync,adapterpay,adapternotif,monitor,printbridge containerStyle
+    class db,cache,store dataStyle
+    class payment,smsext,whatsapp externalStyle
 ```
 
 ---
 
 ## Level 3 — Component Diagram (داخل Backend API)
+
+يوضح هذا المستوى المكوّنات الداخلية لـ Backend API والعلاقات بينها.
+
 ```mermaid
-C4Component
-title Backend API (NestJS) — Components
-
-Container(api, "Backend API", "NestJS") {
-  Component(gateway, "API Gateway", "HTTP Controllers", "REST/OpenAPI، تفويض/تحقق")
-  Component(auth, "Auth & RBAC", "Guards/Policies", "JWT/2FA/WebAuthn، أدوار وصلاحيات")
-  Component(sales, "Sales (Invoices)", "Module", "إنشاء/تعديل/طباعة/مشاركة فواتير")
-  Component(returns, "Returns", "Module", "إرجاع كلي/جزئي، قيود وعكس حركة مخزون")
-  Component(inventory, "Inventory", "Module", "أصناف، مخازن، حركات، تحويلات، جرد")
-  Component(purchase, "Purchasing", "Module", "موردون، فواتير مشتريات، شروط دفع")
-  Component(accounting, "Accounting (GL)", "Module", "دليل حسابات، قيود، سندات، إقفال")
-  Component(reporting, "Reporting", "Module", "تقارير ولوحة مؤشرات، PDF/Excel")
-  Component(syncMgr, "Sync Manager", "Module", "توليد تغييرات/ChangeSet، حل تعارضات")
-  Component(payAdapter, "Payment Adapter", "Module", "بوابة الدفع")
-  Component(notifAdapter, "Notification Adapter", "Module", "SMS/Email/WhatsApp")
-  Component(audit, "Audit & Logs", "Module", "سجلات دقيقة (من/متى/ماذا/قبل-بعد)")
-  Component(common, "Common/Shared", "Lib", "DTOs/Validators/Mappers")
-}
-
-ContainerDb(db, "PostgreSQL", "Relational")
-Container(cache, "Redis", "Cache/Queues")
-Container(store, "Object Storage (S3)", "Files")
-
-Rel(gateway, auth, "تحقق/تفويض")
-Rel(gateway, sales, "API calls")
-Rel(gateway, returns, "API calls")
-Rel(gateway, inventory, "API calls")
-Rel(gateway, purchase, "API calls")
-Rel(gateway, accounting, "API calls")
-Rel(gateway, reporting, "API calls")
-
-Rel(sales, accounting, "توليد قيود الإيرادات/الصندوق/الضريبة")
-Rel(returns, accounting, "عكس الإيرادات/المخزون/الضريبة")
-Rel(inventory, accounting, "تسويات/تكاليف")
-Rel(purchase, accounting, "قيود المشتريات والموردين")
-Rel(reporting, store, "توليد/قراءة PDF/Excel")
-Rel(syncMgr, cache, "Queues/Events")
-Rel(sales, db, "CRUD/Queries")
-Rel(returns, db, "CRUD/Queries")
-Rel(inventory, db, "CRUD/Queries")
-Rel(purchase, db, "CRUD/Queries")
-Rel(accounting, db, "CRUD/Queries")
-Rel(reporting, db, "Queries/Aggregations")
-Rel(audit, db, "Append-only logs")
-Rel(payAdapter, cache, "Idempotency/Events")
-Rel(payAdapter, db, "Tx records")
-Rel(notifAdapter, cache, "Async send")
+graph TB
+    subgraph backendapi["Backend API - NestJS"]
+        subgraph infrastructure["Infrastructure Layer"]
+            gateway["🌐 API Gateway<br/>HTTP Controllers<br/>REST/OpenAPI endpoints، routing"]
+            auth["🔐 Authentication & RBAC<br/>Guards/Policies<br/>JWT/2FA/WebAuthn<br/>أدوار وصلاحيات"]
+            common["📚 Common Library<br/>Shared Lib<br/>DTOs/Validators/Mappers/Utilities"]
+            audit["📝 Audit & Logging<br/>Service<br/>سجلات دقيقة<br/>من/متى/ماذا/قبل-بعد"]
+        end
+        
+        subgraph business["Core Business Modules"]
+            sales["💰 Sales Module<br/>Business Logic<br/>إنشاء/تعديل/طباعة<br/>مشاركة فواتير"]
+            returns["↩️ Returns Module<br/>Business Logic<br/>إرجاع كلي/جزئي<br/>عكس حركة مخزون"]
+            inventory["📦 Inventory Module<br/>Business Logic<br/>أصناف، مخازن، حركات<br/>تحويلات، جرد"]
+            purchase["🛒 Purchasing Module<br/>Business Logic<br/>موردون، فواتير مشتريات<br/>شروط دفع"]
+            accounting["📊 Accounting Module<br/>Business Logic<br/>دليل حسابات، قيود<br/>سندات، إقفال"]
+            reporting["📈 Reporting Module<br/>Business Logic<br/>تقارير ولوحة مؤشرات<br/>PDF/Excel"]
+        end
+        
+        subgraph integration["Integration & Sync"]
+            syncmgr["🔄 Sync Manager<br/>Background Service<br/>مزامنة Offline، حل تعارضات<br/>ChangeSet"]
+            payadapter["💳 Payment Adapter<br/>Integration Service<br/>تكامل بوابة الدفع"]
+            notifadapter["📧 Notification Adapter<br/>Integration Service<br/>SMS/Email/WhatsApp"]
+        end
+    end
+    
+    subgraph external["External Data & Services"]
+        db[("💾 PostgreSQL<br/>Relational Database")]
+        cache["⚡ Redis<br/>Cache & Message Queue"]
+        store["📦 Object Storage<br/>S3-compatible Files"]
+    end
+    
+    gateway -->|التحقق والتفويض| auth
+    gateway -->|POST/GET/PUT<br/>/api/sales| sales
+    gateway -->|POST/GET<br/>/api/returns| returns
+    gateway -->|POST/GET/PUT<br/>/api/inventory| inventory
+    gateway -->|POST/GET<br/>/api/purchases| purchase
+    gateway -->|POST/GET<br/>/api/accounting| accounting
+    gateway -->|GET<br/>/api/reports| reporting
+    
+    sales -->|توليد قيود الإيرادات<br/>الصندوق/الضريبة| accounting
+    returns -->|عكس الإيرادات<br/>المخزون/الضريبة| accounting
+    inventory -->|تسويات/تكاليف<br/>المخزون| accounting
+    purchase -->|قيود المشتريات<br/>والموردين| accounting
+    
+    sales -->|CRUD/Queries SQL| db
+    returns -->|CRUD/Queries SQL| db
+    inventory -->|CRUD/Queries SQL| db
+    purchase -->|CRUD/Queries SQL| db
+    accounting -->|CRUD/Queries SQL| db
+    reporting -->|Queries/Aggregations SQL| db
+    audit -->|Append-only logs SQL| db
+    
+    syncmgr -->|Queues/Events<br/>Pub/Sub| cache
+    payadapter -->|Idempotency Keys/Events<br/>Redis| cache
+    notifadapter -->|Async Queue<br/>Redis| cache
+    
+    payadapter -->|Transaction Records<br/>SQL| db
+    
+    reporting -->|توليد/قراءة<br/>PDF/Excel - S3 API| store
+    
+    classDef infraStyle fill:#438dd5,stroke:#2e6295,color:#fff,stroke-width:2px
+    classDef businessStyle fill:#1168bd,stroke:#0b4884,color:#fff,stroke-width:2px
+    classDef integrationStyle fill:#6b8e23,stroke:#556b2f,color:#fff,stroke-width:2px
+    classDef dataStyle fill:#999999,stroke:#6b6b6b,color:#fff,stroke-width:2px
+    
+    class gateway,auth,common,audit infraStyle
+    class sales,returns,inventory,purchase,accounting,reporting businessStyle
+    class syncmgr,payadapter,notifadapter integrationStyle
+    class db,cache,store dataStyle
 ```
 
 ---
 
 ## Level 4 — Deployment Diagram (النشر والتشغيل)
+
+يوضح هذا المستوى كيفية نشر النظام والبنية التحتية المطلوبة لتشغيله.
+
 ```mermaid
-C4Deployment
-title POS Platform — Deployment (Reference)
-
-Deployment_Node(client, "Client Devices", "Android/iOS/PC") {
-  Deployment_Node(browser, "Browser/ WebView") {
-    Container(pwa, "PWA (POS)", "React/TS + IndexedDB")
-    Container(admin, "Admin Dashboard", "React/TS")
-    Container(printBridge, "Print Bridge (اختياري)", "Desktop Service")
-  }
-  Deployment_Node(printer, "Thermal Printer", "Bluetooth/USB") {
-    Container_Ext(escpos, "ESC/POS Printer", "80mm/58mm")
-  }
-}
-
-Deployment_Node(cloud, "Cloud", "K8s/VMs") {
-  Deployment_Node(app, "App Nodes", "Node.js") {
-    Container(api, "Backend API", "NestJS")
-    Container(sync, "Sync/Worker", "Node + Queue")
-  }
-  Deployment_Node(data, "Data Layer") {
-    ContainerDb(db, "PostgreSQL", "HA/Backup")
-    Container(cache, "Redis", "Cache/Queues")
-    Container(store, "Object Storage", "S3-compatible")
-  }
-  Deployment_Node(obs, "Observability") {
-    Container(monitor, "APM/Logs/Metrics", "Dashboards/Alerts")
-  }
-}
-
-Deployment_Node(ext, "3rd Party Services") {
-  Container_Ext(payment, "Payment Gateway", "HTTPS")
-  Container_Ext(sms, "SMS/Email Provider", "HTTPS")
-  Container_Ext(whatsapp, "WhatsApp Business", "HTTPS")
-}
-
-Rel(pwa, api, "HTTPS/REST")
-Rel(admin, api, "HTTPS/REST")
-Rel(api, db, "SQL")
-Rel(api, cache, "TCP")
-Rel(sync, cache, "Queues")
-Rel(api, store, "S3 API")
-Rel(api, payment, "HTTPS")
-Rel(api, sms, "HTTPS")
-Rel(api, whatsapp, "HTTPS")
-Rel(printBridge, escpos, "USB/Serial/BLE")
+graph TB
+    subgraph clientdevices["Client Devices - Android/iOS/PC"]
+        subgraph browser["Browser/WebView"]
+            pwa["📱 PWA POS<br/>React/TS + IndexedDB"]
+            admin["🖥️ Admin Dashboard<br/>React/TS"]
+            printbridge["🖨️ Print Bridge<br/>Desktop Service<br/>اختياري"]
+        end
+        
+        subgraph thermalprinter["Thermal Printer - Bluetooth/USB"]
+            escpos["🖨️ ESC/POS Printer<br/>80mm/58mm"]
+        end
+    end
+    
+    subgraph cloudinfra["Cloud Infrastructure - K8s/VMs"]
+        subgraph appnodes["App Nodes - Node.js"]
+            api["⚙️ Backend API<br/>NestJS"]
+            sync["🔄 Sync/Worker<br/>Node + Queue"]
+        end
+        
+        subgraph datalayer["Data Layer"]
+            db[("💾 PostgreSQL<br/>HA/Backup")]
+            cache["⚡ Redis<br/>Cache/Queues"]
+            store["📦 Object Storage<br/>S3-compatible"]
+        end
+        
+        subgraph observability["Observability"]
+            monitor["📊 APM/Logs/Metrics<br/>Dashboards/Alerts"]
+        end
+    end
+    
+    subgraph thirdparty["3rd Party Services"]
+        payment["💳 Payment Gateway<br/>HTTPS"]
+        sms["📱 SMS/Email Provider<br/>HTTPS"]
+        whatsapp["💬 WhatsApp Business<br/>HTTPS"]
+    end
+    
+    pwa -->|HTTPS/REST| api
+    admin -->|HTTPS/REST| api
+    api -->|SQL| db
+    api -->|TCP| cache
+    sync -->|Queues| cache
+    api -->|S3 API| store
+    api -->|HTTPS| payment
+    api -->|HTTPS| sms
+    api -->|HTTPS| whatsapp
+    printbridge -.->|USB/Serial/BLE| escpos
+    
+    classDef clientStyle fill:#08427b,stroke:#052e56,color:#fff,stroke-width:2px
+    classDef appStyle fill:#1168bd,stroke:#0b4884,color:#fff,stroke-width:2px
+    classDef dataStyle fill:#438dd5,stroke:#2e6295,color:#fff,stroke-width:2px
+    classDef externalStyle fill:#999999,stroke:#6b6b6b,color:#fff,stroke-width:2px
+    
+    class pwa,admin,printbridge,escpos clientStyle
+    class api,sync,monitor appStyle
+    class db,cache,store dataStyle
+    class payment,sms,whatsapp externalStyle
 ```
 
 ---
 
 ## Dynamic — سيناريو: بيع Offline ثم مزامنة
+
+يوضح هذا السيناريو التدفق التفصيلي لعملية البيع في وضع Offline ثم مزامنة البيانات مع الخادم عند عودة الاتصال.
+
 ```mermaid
-C4Dynamic
-title Offline sale then sync
-
-Person(cashier, "الصراف")
-Container(pwa, "POS PWA", "IndexedDB")
-Container(api, "Backend API", "NestJS")
-Container(sync, "Sync/Worker", "Queues")
-ContainerDb(db, "PostgreSQL", "Relational")
-Container(cache, "Redis", "Queues")
-
-Rel(cashier, pwa, "1) يضيف أصناف ويدفع (بدون إنترنت)")
-Rel(pwa, pwa, "2) يخزّن الفاتورة محلياً + علامات مزامنة")
-Rel(pwa, api, "3) عند الاتصال: إرسال التغييرات (Batch)", "HTTPS")
-Rel(api, db, "4) إنشاء سجل الفاتورة/الحركات ضمن معاملة")
-Rel(api, cache, "5) نشر حدث 'InvoiceCreated'")
-Rel(sync, cache, "6) يلتقط الحدث ويعالج تبعات/تنبيهات/تقارير")
-Rel(sync, db, "7) تحديثات إضافية/تجميعات")
-Rel(api, pwa, "8) إرجاع نتائج المزامنة وحالة الفاتورة")
+sequenceDiagram
+    participant الصراف
+    participant PWA as POS PWA<br/>React/TS + IndexedDB
+    participant API as Backend API<br/>NestJS
+    participant DB as PostgreSQL<br/>Relational DB
+    participant Cache as Redis<br/>Cache/Queues
+    participant Sync as Sync/Worker<br/>Node + Queues
+    
+    Note over الصراف,PWA: وضع Offline - بدون اتصال بالإنترنت
+    الصراف->>PWA: 1) يضيف أصناف ويدفع<br/>(بدون إنترنت)
+    PWA->>PWA: حفظ البيانات محلياً<br/>في IndexedDB
+    
+    Note over PWA,API: عودة الاتصال بالإنترنت
+    PWA->>API: 2) إرسال التغييرات المحفوظة محلياً<br/>(Batch) - HTTPS/REST
+    
+    Note over API,DB: معالجة البيانات
+    API->>DB: 3) إنشاء سجل الفاتورة/الحركات<br/>ضمن معاملة - SQL Transaction
+    DB-->>API: تأكيد الحفظ
+    
+    API->>Cache: 4) نشر حدث 'InvoiceCreated'<br/>Pub/Sub
+    
+    Note over Cache,Sync: معالجة غير متزامنة
+    Cache->>Sync: 5) يلتقط الحدث ويعالج<br/>تبعات/تنبيهات/تقارير<br/>Event Consumer
+    
+    Sync->>DB: 6) تحديثات إضافية/تجميعات<br/>SQL Updates
+    
+    API-->>PWA: 7) إرجاع نتائج المزامنة<br/>وحالة الفاتورة - HTTPS/REST
+    PWA-->>الصراف: تأكيد نجاح العملية
+    
+    Note over الصراف,Sync: العملية مكتملة ✓
 ```
+
+---
+
+## ملاحظات تقنية
+
+### المزايا الرئيسية للنظام:
+
+1. **Offline-First Architecture**: يعمل النظام بكفاءة دون اتصال بالإنترنت مع مزامنة تلقائية
+2. **قابلية التوسع**: بنية موزعة تدعم النمو الأفقي
+3. **الأمان المتقدم**: مصادقة متعددة العوامل وصلاحيات دقيقة
+4. **التكامل السلس**: دعم متعدد لبوابات الدفع والإشعارات
+5. **المراقبة والمتابعة**: نظام شامل للسجلات والتنبيهات
+
+### التقنيات المستخدمة:
+
+- **Frontend**: React, TypeScript, IndexedDB, PWA
+- **Backend**: NestJS, Node.js, REST API, OpenAPI
+- **Database**: PostgreSQL (Relational DB)
+- **Cache & Queue**: Redis
+- **Storage**: S3-compatible Object Storage
+- **Deployment**: Kubernetes/VMs, Docker
+- **Monitoring**: APM, Logs, Metrics, Dashboards
