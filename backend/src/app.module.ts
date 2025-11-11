@@ -20,6 +20,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { SyncModule } from './modules/sync/sync.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { StorageModule } from './modules/storage/storage.module';
 import { CacheInterceptor } from './common/interceptors/cache.interceptor';
 import { CacheInvalidationInterceptor } from './common/interceptors/cache-invalidation.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -65,6 +66,7 @@ import appConfig from './config/app.config';
     SyncModule,
     PaymentModule,
     NotificationModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [

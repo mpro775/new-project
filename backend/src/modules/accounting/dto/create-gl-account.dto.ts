@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsOptional, IsBoolean, IsIn } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsIn,
+} from 'class-validator';
 
 export class CreateGLAccountDto {
   @IsNotEmpty({ message: 'كود الحساب مطلوب' })
@@ -15,7 +21,8 @@ export class CreateGLAccountDto {
 
   @IsNotEmpty({ message: 'نوع الحساب مطلوب' })
   @IsIn(['asset', 'liability', 'equity', 'revenue', 'expense'], {
-    message: 'نوع الحساب يجب أن يكون أحد: asset, liability, equity, revenue, expense'
+    message:
+      'نوع الحساب يجب أن يكون أحد: asset, liability, equity, revenue, expense',
   })
   accountType: string;
 

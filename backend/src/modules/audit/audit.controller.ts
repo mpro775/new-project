@@ -21,7 +21,8 @@ export class AuditController {
   @Get('logs')
   @Permissions('audit.read')
   async searchAuditLogs(
-    @Query() query: {
+    @Query()
+    query: {
       userId?: string;
       action?: string;
       entity?: string;
@@ -96,8 +97,19 @@ export class AuditController {
   @Permissions('audit.read')
   getDailyAuditStats(@Query('branchId') branchId?: string) {
     const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+    const startOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
+    const endOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      23,
+      59,
+      59,
+    );
 
     return this.auditService.getAuditStats(startOfDay, endOfDay, branchId);
   }
@@ -185,15 +197,17 @@ export class AuditController {
       errorRate: stats.errorRate,
       errorsBySeverity: Object.fromEntries(
         Object.entries(stats.logsBySeverity).filter(([severity]) =>
-          ['error', 'critical'].includes(severity)
-        )
+          ['error', 'critical'].includes(severity),
+        ),
       ),
       errorsByModule: Object.fromEntries(
-        Object.entries(stats.logsByModule).filter(([module, count]) =>
-          count > 0 && module !== 'unknown'
-        )
+        Object.entries(stats.logsByModule).filter(
+          ([module, count]) => count > 0 && module !== 'unknown',
+        ),
       ),
-      recentErrors: stats.recentActivity.filter(activity => !activity.success),
+      recentErrors: stats.recentActivity.filter(
+        (activity) => !activity.success,
+      ),
     };
   }
 
@@ -214,22 +228,30 @@ export class AuditController {
 
     // فلترة العمليات الأمنية
     const securityActions = [
-      'LOGIN_SUCCESS', 'LOGIN_FAILED', 'LOGOUT',
-      'PASSWORD_CHANGE', 'PERMISSION_CHANGE',
-      'CREATE', 'DELETE', 'UPDATE' // العمليات الحساسة
+      'LOGIN_SUCCESS',
+      'LOGIN_FAILED',
+      'LOGOUT',
+      'PASSWORD_CHANGE',
+      'PERMISSION_CHANGE',
+      'CREATE',
+      'DELETE',
+      'UPDATE', // العمليات الحساسة
     ];
 
     const securityLogs = Object.fromEntries(
       Object.entries(stats.logsByAction).filter(([action]) =>
-        securityActions.includes(action)
-      )
+        securityActions.includes(action),
+      ),
     );
 
     return {
-      totalSecurityEvents: Object.values(securityLogs).reduce((sum, count) => sum + count, 0),
+      totalSecurityEvents: Object.values(securityLogs).reduce(
+        (sum, count) => sum + count,
+        0,
+      ),
       securityEventsByType: securityLogs,
       securityEventsByUser: Object.fromEntries(
-        Object.entries(stats.logsByUser).filter(([userId, count]) => count > 0)
+        Object.entries(stats.logsByUser).filter(([userId, count]) => count > 0),
       ),
       failedLogins: stats.logsByAction['LOGIN_FAILED'] || 0,
       permissionChanges: stats.logsByAction['PERMISSION_CHANGE'] || 0,
@@ -326,10 +348,26 @@ export class AuditController {
     @Query('userId') userId?: string,
   ) {
     const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+    const startOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
+    const endOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      23,
+      59,
+      59,
+    );
 
-    return this.auditService.getChangeReport(startOfDay, endOfDay, entity, userId);
+    return this.auditService.getChangeReport(
+      startOfDay,
+      endOfDay,
+      entity,
+      userId,
+    );
   }
 
   /**
@@ -350,7 +388,12 @@ export class AuditController {
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     endOfWeek.setHours(23, 59, 59, 999);
 
-    return this.auditService.getChangeReport(startOfWeek, endOfWeek, entity, userId);
+    return this.auditService.getChangeReport(
+      startOfWeek,
+      endOfWeek,
+      entity,
+      userId,
+    );
   }
 
   /**
@@ -373,8 +416,11 @@ export class AuditController {
       totalAuditableEvents: stats.totalLogs,
       auditCoverage: 100, // نسبة التغطية (نفترض 100% للأنظمة الحساسة)
       errorRate: stats.errorRate,
-      securityIncidents: (stats.logsBySeverity['critical'] || 0) + (stats.logsBySeverity['error'] || 0),
-      dataAccessEvents: (stats.logsByAction['READ'] || 0) + (stats.logsByAction['UPDATE'] || 0),
+      securityIncidents:
+        (stats.logsBySeverity['critical'] || 0) +
+        (stats.logsBySeverity['error'] || 0),
+      dataAccessEvents:
+        (stats.logsByAction['READ'] || 0) + (stats.logsByAction['UPDATE'] || 0),
       adminActions: stats.logsByAction['PERMISSION_CHANGE'] || 0,
       complianceStatus: stats.errorRate < 5 ? 'compliant' : 'needs_attention',
     };
@@ -387,7 +433,8 @@ export class AuditController {
       },
       complianceMetrics,
       auditTrail: stats.recentActivity.slice(0, 20),
-      recommendations: this.generateComplianceRecommendations(complianceMetrics),
+      recommendations:
+        this.generateComplianceRecommendations(complianceMetrics),
     };
   }
 
@@ -398,7 +445,8 @@ export class AuditController {
   @Permissions('audit.export')
   async exportAuditLogsToExcel(
     @Res() res: Response,
-    @Query() query: {
+    @Query()
+    query: {
       userId?: string;
       action?: string;
       entity?: string;
@@ -440,9 +488,11 @@ export class AuditController {
       // TODO: تنفيذ تصدير Excel باستخدام مكتبة مثل exceljs
       // للآن نرجع البيانات كـ JSON
       res.setHeader('Content-Type', 'application/json');
-      res.setHeader('Content-Disposition', `attachment; filename=audit-logs-${new Date().toISOString().split('T')[0]}.json`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=audit-logs-${new Date().toISOString().split('T')[0]}.json`,
+      );
       res.send(JSON.stringify(logs, null, 2));
-
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: 'فشل في تصدير سجلات التدقيق',
@@ -458,7 +508,8 @@ export class AuditController {
   @Permissions('audit.export')
   async exportAuditLogsToJSON(
     @Res() res: Response,
-    @Query() query: {
+    @Query()
+    query: {
       userId?: string;
       action?: string;
       entity?: string;
@@ -498,9 +549,11 @@ export class AuditController {
       const logs = await this.auditService.exportAuditLogs(auditQuery);
 
       res.setHeader('Content-Type', 'application/json');
-      res.setHeader('Content-Disposition', `attachment; filename=audit-logs-${new Date().toISOString().split('T')[0]}.json`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=audit-logs-${new Date().toISOString().split('T')[0]}.json`,
+      );
       res.send(JSON.stringify(logs, null, 2));
-
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: 'فشل في تصدير سجلات التدقيق',

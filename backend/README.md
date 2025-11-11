@@ -4687,8 +4687,10 @@ PAYMENT_ENCRYPTION_KEY=your_32_character_encryption_key
 ### ✅ المرحلة 20: نظام الإشعارات (Notification System)
 تم تنفيذ نظام إشعارات شامل يدعم عدة قنوات (Email, SMS, WhatsApp, Push, In-App) مع نظام قوالب متقدم وتفضيلات مستخدمين ذكية.
 
-### المراحل المتبقية (7 مراحل):
-21. نظام التخزين (Storage System)
+### ✅ المرحلة 21: نظام التخزين (Storage System)
+تم تنفيذ نظام تخزين شامل يدعم رفع الملفات، التحسين التلقائي للصور، إنشاء الصور المصغرة، والتحكم في الوصول مع دعم S3 وتخزين محلي.
+
+### المراحل المتبقية (6 مراحل):
 22. نظام المراقبة (Monitoring System)
 23. نظام النسخ الاحتياطي (Backup System)
 24. تحسينات الأمان (Security Enhancements)
@@ -5007,6 +5009,503 @@ await notificationService.sendNotification({
   event: 'customer_birthday'
 });
 ```
+
+## نظام التخزين (Storage System)
+
+### نظرة عامة
+نظام تخزين شامل يدعم رفع الملفات، التحسين التلقائي للصور، إنشاء الصور المصغرة، والتحكم في الوصول مع دعم S3 وتخزين محلي.
+
+### المكونات الأساسية
+
+#### 1. رفع الملفات (File Upload)
+- **تحميل متعدد الأجزاء**: دعم رفع الملفات الكبيرة بكفاءة
+- **تحقق من النوع**: التحقق من أنواع الملفات المسموحة
+- **تحقق من الحجم**: حدود حجم الملفات القابلة للتكوين
+- **معالجة الأخطاء**: معالجة شاملة لأخطاء الرفع
+
+#### 2. تحسين الصور (Image Optimization)
+- **ضغط تلقائي**: تقليل حجم الصور دون فقدان الجودة
+- **تغيير الحجم**: تحجيم الصور للاستخدام الأمثل
+- **تحويل التنسيق**: تحويل إلى WebP أو AVIF للأداء الأفضل
+- **إنشاء الصور المصغرة**: صور مصغرة متعددة الأحجام
+
+#### 3. التحكم في الوصول (Access Control)
+- **رموز الوصول**: رموز مؤقتة للوصول المحدود
+- **قواعد الوصول**: قواعد مرنة بناءً على المستخدم أو الدور
+- **الروابط العامة**: روابط مشاركة آمنة مع حدود زمنية
+- **تسجيل الوصول**: تتبع شامل لمحاولات الوصول
+
+#### 4. موفري التخزين (Storage Providers)
+- **S3**: دعم Amazon S3 ومكافئاته (MinIO, DigitalOcean Spaces)
+- **تخزين محلي**: تخزين على النظام الملفي المحلي
+- **CDN**: دعم شبكات توزيع المحتوى
+
+### APIs الرئيسية
+
+#### رفع الملفات
+```typescript
+// رفع ملف واحد
+POST /storage/upload
+Content-Type: multipart/form-data
+Authorization: Bearer <token>
+
+FormData:
+- file: <file>
+- category: "product_images"
+- entityType: "product"
+- entityId: "prod_123"
+- isPublic: false
+- bucket: "main-bucket"
+
+// الاستجابة
+{
+  "id": "file_123",
+  "filename": "product.jpg",
+  "mimeType": "image/jpeg",
+  "size": 245760,
+  "url": "/storage/files/file_123/download",
+  "thumbnailUrl": "/storage/files/file_123/thumbnail",
+  "uploadedBy": "user_456",
+  "createdAt": "2025-01-11T10:00:00Z"
+}
+
+// رفع ملفات متعددة
+POST /storage/upload/multiple
+Content-Type: multipart/form-data
+
+FormData:
+- files: [<file1>, <file2>, <file3>]
+- category: "gallery"
+- entityType: "product"
+- entityId: "prod_123"
+```
+
+#### تحميل وعرض الملفات
+```typescript
+// تحميل ملف
+GET /storage/files/{fileId}/download?userId=user_123&accessToken=abc123
+// يرجع الملف مع headers مناسبة للتحميل
+
+// عرض ملف (inline)
+GET /storage/files/{fileId}/view?userId=user_123&accessToken=abc123
+// يرجع الملف مع headers للعرض في المتصفح
+
+// عرض الصورة المصغرة
+GET /storage/files/{fileId}/thumbnail?userId=user_123&accessToken=abc123
+// يرجع الصورة المصغرة أو الصورة الأصلية إذا لم تكن موجودة
+```
+
+#### إدارة الملفات
+```typescript
+// معلومات الملف
+GET /storage/files/{fileId}?userId=user_123
+{
+  "id": "file_123",
+  "filename": "product.jpg",
+  "originalName": "my-product-image.jpg",
+  "mimeType": "image/jpeg",
+  "size": 245760,
+  "path": "/uploads/main-bucket/2025/01/file_123.jpg",
+  "url": "/storage/files/file_123/download",
+  "thumbnailUrl": "/storage/files/file_123/thumbnail",
+  "bucket": "main-bucket",
+  "category": "product_images",
+  "entityType": "product",
+  "entityId": "prod_123",
+  "isPublic": false,
+  "metadata": {
+    "width": 1920,
+    "height": 1080,
+    "optimized": true,
+    "compressionRatio": 35.5
+  },
+  "uploadedBy": "user_456",
+  "branchId": "branch_789",
+  "createdAt": "2025-01-11T10:00:00Z",
+  "updatedAt": "2025-01-11T10:05:00Z"
+}
+
+// البحث في الملفات
+GET /storage/files?category=product_images&entityType=product&entityId=prod_123&userId=user_123
+{
+  "files": [...],
+  "total": 25,
+  "page": 1,
+  "limit": 10,
+  "totalPages": 3
+}
+
+// حذف ملف
+DELETE /storage/files/{fileId}?userId=user_123
+{
+  "message": "تم حذف الملف بنجاح"
+}
+```
+
+#### تحسين الصور
+```typescript
+// تحسين صورة وحفظها
+POST /storage/files/{fileId}/optimize?userId=user_123
+{
+  "quality": 85,
+  "format": "webp",
+  "maxWidth": 1920,
+  "maxHeight": 1080
+}
+// الاستجابة: نتيجة التحسين مع نسبة الضغط
+
+// إنشاء صور مصغرة
+POST /storage/files/{fileId}/thumbnails?userId=user_123
+{
+  "sizes": [
+    { "width": 150, "height": 150, "suffix": "sm" },
+    { "width": 300, "height": 300, "suffix": "md" },
+    { "width": 600, "height": 600, "suffix": "lg" }
+  ]
+}
+{
+  "fileId": "file_123",
+  "thumbnails": [
+    {
+      "size": "sm",
+      "path": "/uploads/thumbnails/main-bucket/file_123_sm.jpg",
+      "success": true
+    }
+  ],
+  "message": "تم إنشاء الصور المصغرة بنجاح"
+}
+
+// تحويل تنسيق الصورة
+POST /storage/files/{fileId}/convert?userId=user_123
+{
+  "targetFormat": "webp",
+  "quality": 80
+}
+{
+  "fileId": "file_123",
+  "conversion": {
+    "success": true,
+    "originalSize": 245760,
+    "optimizedSize": 184320,
+    "compressionRatio": 25.0,
+    "outputPath": "/uploads/optimized/main-bucket/converted_file_123.webp"
+  }
+}
+
+// تحسين تلقائي
+POST /storage/files/{fileId}/auto-optimize?userId=user_123
+{
+  "aggressive": false
+}
+{
+  "fileId": "file_123",
+  "autoOptimization": {
+    "optimizations": ["تقليل الجودة إلى 85%", "تحويل إلى WebP"],
+    "totalCompression": 45.5,
+    "results": [...]
+  }
+}
+
+// metadata الصورة
+GET /storage/files/{fileId}/metadata?userId=user_123
+{
+  "fileId": "file_123",
+  "metadata": {
+    "width": 1920,
+    "height": 1080,
+    "format": "jpeg",
+    "size": 245760,
+    "colorSpace": "srgb",
+    "hasAlpha": false,
+    "density": 72
+  }
+}
+```
+
+#### التحكم في الوصول
+```typescript
+// إنشاء رابط وصول مؤقت
+POST /storage/files/{fileId}/access-token?userId=user_123
+{
+  "expiresInMinutes": 60,
+  "maxDownloads": 5
+}
+{
+  "fileId": "file_123",
+  "accessToken": "abc123def456...",
+  "expiresIn": 60,
+  "maxDownloads": 5,
+  "message": "تم إنشاء رابط الوصول المؤقت بنجاح"
+}
+
+// إنشاء رابط عام
+POST /storage/files/{fileId}/public-link?userId=user_123
+{
+  "expiresInMinutes": 1440, // 24 ساعة
+  "maxDownloads": 10
+}
+{
+  "fileId": "file_123",
+  "publicLink": "http://localhost:3000/api/storage/files/file_123/download?token=abc123...",
+  "expiresIn": 1440,
+  "maxDownloads": 10
+}
+
+// إبطال جميع رموز الوصول
+DELETE /storage/files/{fileId}/access-tokens?userId=user_123
+{
+  "fileId": "file_123",
+  "revokedTokens": 3,
+  "message": "تم إبطال جميع رموز الوصول بنجاح"
+}
+
+// إحصائيات الوصول
+GET /storage/files/{fileId}/access-stats?userId=user_123
+{
+  "totalAccess": 15,
+  "uniqueUsers": 8,
+  "recentAccess": [
+    {
+      "accessedBy": "user_456",
+      "accessType": "token",
+      "accessedAt": "2025-01-11T10:30:00Z",
+      "ipAddress": "192.168.1.100"
+    }
+  ],
+  "accessByType": {
+    "direct": 5,
+    "token": 8,
+    "rule": 2
+  }
+}
+```
+
+#### إحصائيات التخزين
+```typescript
+// إحصائيات عامة
+GET /storage/stats?branchId=branch_123
+{
+  "totalFiles": 1250,
+  "totalSize": 524288000, // 500MB
+  "totalSizeFormatted": "500 MB",
+  "filesByCategory": {
+    "product_images": 450,
+    "user_avatars": 150,
+    "documents": 300,
+    "invoices": 200,
+    "receipts": 150
+  },
+  "filesByType": {
+    "image/jpeg": 600,
+    "image/png": 200,
+    "application/pdf": 300,
+    "text/plain": 50,
+    "application/msword": 100
+  },
+  "storageByBucket": {
+    "main-bucket": 524288000,
+    "archive-bucket": 104857600
+  },
+  "recentUploads": 45,
+  "averageFileSize": 419430, // ~400KB
+  "largestFile": {
+    "id": "file_789",
+    "filename": "large-video.mp4",
+    "size": 104857600 // 100MB
+  }
+}
+
+// تقارير الملفات
+GET /storage/reports/files?startDate=2025-01-01&endDate=2025-01-11&category=product_images
+{
+  "report": "files_report",
+  "filters": {
+    "startDate": "2025-01-01",
+    "endDate": "2025-01-11",
+    "category": "product_images"
+  },
+  "summary": {
+    "totalFiles": 150,
+    "totalSize": 78643200,
+    "averageSize": 524288,
+    "filesUploaded": 45,
+    "filesDownloaded": 1200,
+    "popularFiles": [...]
+  },
+  "chartData": {
+    "uploadsByDay": [...],
+    "downloadsByDay": [...],
+    "filesBySize": [...]
+  }
+}
+```
+
+### أذونات RBAC
+- `storage.upload`: رفع الملفات
+- `storage.download`: تحميل الملفات
+- `storage.view`: عرض الملفات
+- `storage.edit`: تعديل الملفات (تحسين، تحويل، إلخ)
+- `storage.delete`: حذف الملفات
+- `storage.share`: مشاركة الملفات
+- `storage.admin`: إدارة النظام (تنظيف، إحصائيات، إلخ)
+
+### متغيرات البيئة
+```bash
+# إعدادات عامة
+UPLOAD_DIR=./uploads
+MAX_FILE_SIZE=10485760  # 10MB
+ALLOWED_MIME_TYPES=image/jpeg,image/png,image/webp,application/pdf
+ALLOWED_EXTENSIONS=jpg,jpeg,png,webp,pdf,doc,docx
+
+# S3 Configuration
+STORAGE_PROVIDER=s3
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+S3_BUCKET_NAME=zaytuna-storage
+S3_BASE_PATH=uploads/
+
+# Local Storage (افتراضي)
+STORAGE_PROVIDER=local
+LOCAL_STORAGE_PATH=./uploads
+
+# Image Optimization
+IMAGE_OPTIMIZATION_ENABLED=true
+IMAGE_QUALITY_DEFAULT=85
+IMAGE_MAX_WIDTH=1920
+IMAGE_MAX_HEIGHT=1080
+THUMBNAIL_SIZES=150x150,300x300,600x600
+AUTO_OPTIMIZE_IMAGES=true
+
+# Access Control
+ACCESS_TOKEN_EXPIRY_MINUTES=60
+MAX_DOWNLOADS_PER_TOKEN=10
+ENABLE_PUBLIC_LINKS=true
+PUBLIC_LINK_EXPIRY_HOURS=24
+
+# Cache Configuration
+STORAGE_CACHE_TTL=3600  # 1 hour
+ENABLE_FILE_CACHING=true
+CACHE_THUMBNAILS=true
+```
+
+### اختبار النظام
+```bash
+# تشغيل اختبارات التخزين
+npm run storage:test
+
+# الاختبارات تشمل:
+# - رفع الملفات وحفظها
+# - تحسين الصور وضغطها
+# - إنشاء الصور المصغرة
+# - التحكم في الوصول والرموز
+# - إحصائيات التخزين
+# - تنظيف الملفات المؤقتة
+# - معالجة الأخطاء
+```
+
+### مميزات متقدمة
+
+#### 1. تحسين الصور التلقائي
+- **كشف التنسيق**: تحويل تلقائي إلى WebP للأداء الأفضل
+- **ضغط ذكي**: ضغط مختلف حسب نوع الصورة
+- **تحجيم تلقائي**: تقليل الأبعاد الكبيرة جداً
+- **إزالة البيانات الوصفية**: تقليل الحجم دون فقدان المعلومات المهمة
+
+#### 2. نظام الصور المصغرة
+- **أحجام متعددة**: إنشاء عدة أحجام للاستخدام المختلف
+- **جودة قابلة للتكوين**: تحكم في جودة الصور المصغرة
+- **تحديث تلقائي**: إعادة إنشاء عند تحديث الصورة الأصلية
+
+#### 3. التحكم الأمني في الوصول
+- **تشفير الرموز**: رموز وصول آمنة ومشفرة
+- **حدود زمنية**: انتهاء صلاحية الروابط تلقائياً
+- **قيود التنزيل**: تحديد عدد مرات التنزيل المسموحة
+- **تسجيل شامل**: تتبع كامل لعمليات الوصول
+
+#### 4. دعم التخزين السحابي
+- **Amazon S3**: دعم كامل لخدمة S3
+- **تكرار تلقائي**: نسخ احتياطي تلقائي
+- **CDN**: توزيع سريع عالمي
+- **تكلفة محسنة**: تخزين ذكي وفعال
+
+#### 5. إدارة متقدمة للملفات
+- **إصدارات الملفات**: حفظ إصدارات مختلفة
+- **استعادة الملفات**: استعادة الملفات المحذوفة
+- **فحص سلامة**: التحقق من سلامة الملفات المخزنة
+- **تنظيف تلقائي**: حذف الملفات المؤقتة والقديمة
+
+### أمثلة عملية
+
+```typescript
+// رفع صورة منتج وتحسينها تلقائياً
+const uploadedFile = await storageService.uploadFile({
+  file: productImage,
+  category: 'product_images',
+  entityType: 'product',
+  entityId: productId,
+  isPublic: true,
+  bucket: 'products',
+  uploadedBy: userId,
+  metadata: {
+    alt: productName,
+    caption: productDescription
+  }
+});
+
+// تحسين الصورة تلقائياً
+await imageOptimizationService.autoOptimizeImage(uploadedFile.id, false);
+
+// إنشاء صور مصغرة
+await imageOptimizationService.generateThumbnailsForFile(uploadedFile.id, [
+  { width: 300, height: 300, suffix: 'md' },
+  { width: 600, height: 600, suffix: 'lg' }
+]);
+
+// إنشاء رابط عام للمشاركة
+const publicLink = await accessControlService.createPublicLink(
+  uploadedFile.id,
+  userId,
+  { expiresIn: 168 } // أسبوع واحد
+);
+
+console.log(`Product image uploaded: ${uploadedFile.url}`);
+console.log(`Public link: ${publicLink}`);
+```
+
+### أداء وتحسين
+
+#### 1. الكاش الذكي
+- **كاش الملفات**: تخزين مؤقت للملفات المتكررة الوصول
+- **كاش الصور المصغرة**: تخزين الصور المصغرة في الذاكرة
+- **كاش الـ metadata**: تخزين معلومات الملفات
+
+#### 2. معالجة غير متزامنة
+- **طوابير الرفع**: معالجة الرفع في الخلفية
+- **تحسين غير متزامن**: تحسين الصور بدون حجب الاستجابة
+- **معالجة مجمعة**: تحسين عدة ملفات معاً
+
+#### 3. مراقبة الأداء
+- **مقاييس الرفع**: زمن الرفع وحجم الملفات
+- **إحصائيات التحسين**: نسب الضغط وزمن المعالجة
+- **تحليل الوصول**: أنماط الوصول واستخدام النطاق
+
+### التكامل مع النظام
+
+#### 1. تكامل مع المنتجات
+- **صور المنتجات**: رفع وتحسين صور المنتجات تلقائياً
+- **كتالوج الصور**: إدارة صور المنتجات مع الصور المصغرة
+- **معرض المنتجات**: عرض الصور المحسنة في التطبيق
+
+#### 2. تكامل مع المستخدمين
+- **صور الملف الشخصي**: رفع وتحسين صور المستخدمين
+- **وثائق الهوية**: تخزين آمن لوثائق المستخدمين
+- **مرفقات الرسائل**: مشاركة الملفات بأمان
+
+#### 3. تكامل مع المبيعات
+- **فواتير PDF**: تخزين فواتير المبيعات
+- **إيصالات الدفع**: حفظ إيصالات الدفع الرقمية
+- **عقود التجارة**: تخزين العقود والوثائق الرسمية
 
 ### المراحل القادمة
 - وحدات الأعمال الأساسية (Purchasing, Accounting, etc.)

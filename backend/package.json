@@ -42,7 +42,8 @@
     "audit:test": "tsx scripts/test-audit.ts",
     "sync:test": "tsx scripts/test-sync.ts",
     "payment:test": "tsx scripts/test-payment.ts",
-    "notification:test": "tsx scripts/test-notification.ts"
+    "notification:test": "tsx scripts/test-notification.ts",
+    "storage:test": "tsx scripts/test-storage.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

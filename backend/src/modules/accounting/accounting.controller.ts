@@ -64,7 +64,10 @@ export class AccountingController {
   @Patch('gl-accounts/:id')
   @Permissions('accounting.gl_accounts.update')
   @HttpCode(HttpStatus.OK)
-  updateGLAccount(@Param('id') id: string, @Body() updateGLAccountDto: UpdateGLAccountDto) {
+  updateGLAccount(
+    @Param('id') id: string,
+    @Body() updateGLAccountDto: UpdateGLAccountDto,
+  ) {
     return this.accountingService.updateGLAccount(id, updateGLAccountDto);
   }
 
@@ -86,8 +89,14 @@ export class AccountingController {
   @Post('journal-entries')
   @Permissions('accounting.journal_entries.create')
   @HttpCode(HttpStatus.CREATED)
-  createJournalEntry(@Body() createJournalEntryDto: CreateJournalEntryDto, @Req() req: any) {
-    return this.accountingService.createJournalEntry(createJournalEntryDto, req.user.id);
+  createJournalEntry(
+    @Body() createJournalEntryDto: CreateJournalEntryDto,
+    @Req() req: any,
+  ) {
+    return this.accountingService.createJournalEntry(
+      createJournalEntryDto,
+      req.user.id,
+    );
   }
 
   /**

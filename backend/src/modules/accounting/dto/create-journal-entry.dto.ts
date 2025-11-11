@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsString, IsOptional, IsBoolean, IsDateString, IsArray, ValidateNested, IsIn } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsDateString,
+  IsArray,
+  ValidateNested,
+  IsIn,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 class JournalEntryLineDto {
@@ -54,7 +63,7 @@ export class CreateJournalEntryDto {
 
   @IsOptional()
   @IsIn(['draft', 'posted'], {
-    message: 'حالة القيد يجب أن تكون draft أو posted'
+    message: 'حالة القيد يجب أن تكون draft أو posted',
   })
   status?: string;
 

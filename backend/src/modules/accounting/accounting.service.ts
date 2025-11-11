@@ -10,7 +10,6 @@ import { CacheService } from '../../shared/cache/cache.service';
 import { CreateGLAccountDto } from './dto/create-gl-account.dto';
 import { UpdateGLAccountDto } from './dto/update-gl-account.dto';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
-import { UpdateJournalEntryDto } from './dto/update-journal-entry.dto';
 
 export interface GLAccountWithDetails {
   id: string;
@@ -115,19 +114,35 @@ export class AccountingService {
 
     // التزامات
     accountsPayable: { code: '2001', name: 'الدائنون', type: 'liability' },
-    salesTaxPayable: { code: '2002', name: 'ضريبة المبيعات المستحقة', type: 'liability' },
+    salesTaxPayable: {
+      code: '2002',
+      name: 'ضريبة المبيعات المستحقة',
+      type: 'liability',
+    },
 
     // حقوق الملكية
     capital: { code: '3001', name: 'رأس المال', type: 'equity' },
-    retainedEarnings: { code: '3002', name: 'الأرباح المحتجزة', type: 'equity' },
+    retainedEarnings: {
+      code: '3002',
+      name: 'الأرباح المحتجزة',
+      type: 'equity',
+    },
 
     // إيرادات
     salesRevenue: { code: '4001', name: 'إيرادات المبيعات', type: 'revenue' },
     otherIncome: { code: '4002', name: 'إيرادات أخرى', type: 'revenue' },
 
     // مصروفات
-    costOfGoodsSold: { code: '5001', name: 'تكلفة البضائع المباعة', type: 'expense' },
-    operatingExpenses: { code: '5002', name: 'المصروفات التشغيلية', type: 'expense' },
+    costOfGoodsSold: {
+      code: '5001',
+      name: 'تكلفة البضائع المباعة',
+      type: 'expense',
+    },
+    operatingExpenses: {
+      code: '5002',
+      name: 'المصروفات التشغيلية',
+      type: 'expense',
+    },
     salariesExpense: { code: '5003', name: 'مرتبات', type: 'expense' },
   };
 
@@ -139,9 +154,13 @@ export class AccountingService {
   /**
    * إنشاء حساب دفتر الأستاذ العام
    */
-  async createGLAccount(createGLAccountDto: CreateGLAccountDto): Promise<GLAccountWithDetails> {
+  async createGLAccount(
+    createGLAccountDto: CreateGLAccountDto,
+  ): Promise<GLAccountWithDetails> {
     try {
-      this.logger.log(`إنشاء حساب GL: ${createGLAccountDto.accountCode} - ${createGLAccountDto.name}`);
+      this.logger.log(
+        `إنشاء حساب GL: ${createGLAccountDto.accountCode} - ${createGLAccountDto.name}`,
+      );
 
       // التحقق من عدم تكرار كود الحساب
       const existingAccount = await this.prisma.gLAccount.findUnique({
@@ -163,8 +182,15 @@ export class AccountingService {
         }
 
         // التحقق من عدم وجود حلقة في التسلسل الهرمي
-        if (await this.wouldCreateCycle(createGLAccountDto.parentId, createGLAccountDto.parentId)) {
-          throw new BadRequestException('لا يمكن إنشاء حلقة في التسلسل الهرمي للحسابات');
+        if (
+          await this.wouldCreateCycle(
+            createGLAccountDto.parentId,
+            createGLAccountDto.parentId,
+          )
+        ) {
+          throw new BadRequestException(
+            'لا يمكن إنشاء حلقة في التسلسل الهرمي للحسابات',
+          );
         }
       }
 
@@ -202,7 +228,8 @@ export class AccountingService {
     try {
       const cacheKey = `gl_accounts:${includeInactive}:${accountType || 'all'}`;
 
-      const cachedAccounts = await this.cacheService.get<GLAccountWithDetails[]>(cacheKey);
+      const cachedAccounts =
+        await this.cacheService.get<GLAccountWithDetails[]>(cacheKey);
       if (cachedAccounts) {
         return cachedAccounts;
       }
@@ -217,14 +244,11 @@ export class AccountingService {
 
       const accounts = await this.prisma.gLAccount.findMany({
         where,
-        orderBy: [
-          { accountCode: 'asc' },
-          { name: 'asc' },
-        ],
+        orderBy: [{ accountCode: 'asc' }, { name: 'asc' }],
       });
 
       const accountsWithDetails = await Promise.all(
-        accounts.map(account => this.buildGLAccountWithDetails(account))
+        accounts.map((account) => this.buildGLAccountWithDetails(account)),
       );
 
       await this.cacheService.set(cacheKey, accountsWithDetails, { ttl: 1800 });
@@ -242,7 +266,8 @@ export class AccountingService {
   async findGLAccountById(id: string): Promise<GLAccountWithDetails> {
     try {
       const cacheKey = `gl_account:${id}`;
-      const cachedAccount = await this.cacheService.get<GLAccountWithDetails>(cacheKey);
+      const cachedAccount =
+        await this.cacheService.get<GLAccountWithDetails>(cacheKey);
 
       if (cachedAccount) {
         return cachedAccount;
@@ -270,7 +295,10 @@ export class AccountingService {
   /**
    * تحديث حساب GL
    */
-  async updateGLAccount(id: string, updateGLAccountDto: UpdateGLAccountDto): Promise<GLAccountWithDetails> {
+  async updateGLAccount(
+    id: string,
+    updateGLAccountDto: UpdateGLAccountDto,
+  ): Promise<GLAccountWithDetails> {
     try {
       this.logger.log(`تحديث حساب GL: ${id}`);
 
@@ -287,15 +315,22 @@ export class AccountingService {
         const allowedFields = ['isActive', 'description'];
         const requestedFields = Object.keys(updateGLAccountDto);
 
-        const hasUnauthorizedFields = requestedFields.some(field => !allowedFields.includes(field));
+        const hasUnauthorizedFields = requestedFields.some(
+          (field) => !allowedFields.includes(field),
+        );
 
         if (hasUnauthorizedFields) {
-          throw new BadRequestException('لا يمكن تحديث الحسابات النظامية إلا للحقول المحدودة');
+          throw new BadRequestException(
+            'لا يمكن تحديث الحسابات النظامية إلا للحقول المحدودة',
+          );
         }
       }
 
       // التحقق من عدم تكرار كود الحساب
-      if (updateGLAccountDto.accountCode && updateGLAccountDto.accountCode !== existingAccount.accountCode) {
+      if (
+        updateGLAccountDto.accountCode &&
+        updateGLAccountDto.accountCode !== existingAccount.accountCode
+      ) {
         const existingCode = await this.prisma.gLAccount.findUnique({
           where: { accountCode: updateGLAccountDto.accountCode },
         });
@@ -317,7 +352,9 @@ export class AccountingService {
 
         // التحقق من عدم وجود حلقة في التسلسل الهرمي
         if (await this.wouldCreateCycle(id, updateGLAccountDto.parentId)) {
-          throw new BadRequestException('لا يمكن إنشاء حلقة في التسلسل الهرمي للحسابات');
+          throw new BadRequestException(
+            'لا يمكن إنشاء حلقة في التسلسل الهرمي للحسابات',
+          );
         }
       }
 
@@ -372,7 +409,9 @@ export class AccountingService {
 
       // التحقق من عدم وجود حسابات فرعية
       if (account.children.length > 0) {
-        throw new BadRequestException('لا يمكن حذف حساب يحتوي على حسابات فرعية');
+        throw new BadRequestException(
+          'لا يمكن حذف حساب يحتوي على حسابات فرعية',
+        );
       }
 
       // التحقق من عدم وجود قيود مرتبطة
@@ -413,11 +452,19 @@ export class AccountingService {
       }
 
       // التحقق من توازن القيد
-      const totalDebit = createJournalEntryDto.lines.reduce((sum, line) => sum + Number(line.amount), 0);
-      const totalCredit = createJournalEntryDto.lines.reduce((sum, line) => sum + Number(line.amount), 0);
+      const totalDebit = createJournalEntryDto.lines.reduce(
+        (sum, line) => sum + Number(line.amount),
+        0,
+      );
+      const totalCredit = createJournalEntryDto.lines.reduce(
+        (sum, line) => sum + Number(line.amount),
+        0,
+      );
 
       if (totalDebit !== totalCredit) {
-        throw new BadRequestException('القيد غير متوازن - مجموع المدين يجب أن يساوي مجموع الدائن');
+        throw new BadRequestException(
+          'القيد غير متوازن - مجموع المدين يجب أن يساوي مجموع الدائن',
+        );
       }
 
       // إنشاء القيد داخل معاملة قاعدة بيانات
@@ -426,7 +473,9 @@ export class AccountingService {
         const entry = await tx.journalEntry.create({
           data: {
             entryNumber: createJournalEntryDto.entryNumber,
-            entryDate: createJournalEntryDto.entryDate ? new Date(createJournalEntryDto.entryDate) : new Date(),
+            entryDate: createJournalEntryDto.entryDate
+              ? new Date(createJournalEntryDto.entryDate)
+              : new Date(),
             description: createJournalEntryDto.description,
             referenceType: createJournalEntryDto.referenceType,
             referenceId: createJournalEntryDto.referenceId,
@@ -452,10 +501,14 @@ export class AccountingService {
           });
 
           if (!debitAccount) {
-            throw new NotFoundException(`حساب المدين غير موجود: ${line.debitAccountId}`);
+            throw new NotFoundException(
+              `حساب المدين غير موجود: ${line.debitAccountId}`,
+            );
           }
           if (!creditAccount) {
-            throw new NotFoundException(`حساب الدائن غير موجود: ${line.creditAccountId}`);
+            throw new NotFoundException(
+              `حساب الدائن غير موجود: ${line.creditAccountId}`,
+            );
           }
 
           await tx.journalEntryLine.create({
@@ -494,7 +547,8 @@ export class AccountingService {
 
       await this.invalidateJournalEntriesCache();
 
-      const entryWithDetails = await this.buildJournalEntryWithDetails(journalEntry);
+      const entryWithDetails =
+        await this.buildJournalEntryWithDetails(journalEntry);
 
       this.logger.log(`تم إنشاء القيد اليومي بنجاح`);
       return entryWithDetails;
@@ -517,7 +571,8 @@ export class AccountingService {
     try {
       const cacheKey = `journal_entries:${status || 'all'}:${sourceModule || 'all'}:${startDate?.toISOString() || 'all'}:${endDate?.toISOString() || 'all'}:${limit}`;
 
-      const cachedEntries = await this.cacheService.get<JournalEntryWithDetails[]>(cacheKey);
+      const cachedEntries =
+        await this.cacheService.get<JournalEntryWithDetails[]>(cacheKey);
       if (cachedEntries) {
         return cachedEntries;
       }
@@ -544,17 +599,17 @@ export class AccountingService {
         take: limit,
         include: {
           creator: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
-          },
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
           },
         },
       });
 
       const entriesWithDetails = await Promise.all(
-        entries.map(entry => this.buildJournalEntryWithDetails(entry))
+        entries.map((entry) => this.buildJournalEntryWithDetails(entry)),
       );
 
       await this.cacheService.set(cacheKey, entriesWithDetails, { ttl: 600 });
@@ -572,7 +627,8 @@ export class AccountingService {
   async findJournalEntryById(id: string): Promise<JournalEntryWithDetails> {
     try {
       const cacheKey = `journal_entry:${id}`;
-      const cachedEntry = await this.cacheService.get<JournalEntryWithDetails>(cacheKey);
+      const cachedEntry =
+        await this.cacheService.get<JournalEntryWithDetails>(cacheKey);
 
       if (cachedEntry) {
         return cachedEntry;
@@ -582,11 +638,11 @@ export class AccountingService {
         where: { id },
         include: {
           creator: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
-          },
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
           },
         },
       });
@@ -729,7 +785,10 @@ export class AccountingService {
   /**
    * الحصول على إحصائيات المحاسبة
    */
-  async getAccountingStats(startDate?: Date, endDate?: Date): Promise<AccountingStats> {
+  async getAccountingStats(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<AccountingStats> {
     try {
       const where: any = {};
 
@@ -796,7 +855,7 @@ export class AccountingService {
       let totalGLAccounts = 0;
       let activeGLAccounts = 0;
 
-      glAccountsStats.forEach(stat => {
+      glAccountsStats.forEach((stat) => {
         totalGLAccounts += stat._count.id;
         if (stat.isActive) {
           activeGLAccounts += stat._count.id;
@@ -814,7 +873,7 @@ export class AccountingService {
       let systemEntries = 0;
       let manualEntries = 0;
 
-      journalEntriesStats.forEach(stat => {
+      journalEntriesStats.forEach((stat) => {
         totalJournalEntries += stat._count.id;
         if (stat.status === 'posted') {
           postedEntries += stat._count.id;
@@ -830,11 +889,21 @@ export class AccountingService {
       });
 
       // حساب الأرصدة
-      const totalAssets = Number(assetBalance._sum.debitBalance || 0) - Number(assetBalance._sum.creditBalance || 0);
-      const totalLiabilities = Number(liabilityBalance._sum.creditBalance || 0) - Number(liabilityBalance._sum.debitBalance || 0);
-      const totalEquity = Number(equityBalance._sum.creditBalance || 0) - Number(equityBalance._sum.debitBalance || 0);
-      const totalRevenue = Number(revenueBalance._sum.creditBalance || 0) - Number(revenueBalance._sum.debitBalance || 0);
-      const totalExpenses = Number(expenseBalance._sum.debitBalance || 0) - Number(expenseBalance._sum.creditBalance || 0);
+      const totalAssets =
+        Number(assetBalance._sum.debitBalance || 0) -
+        Number(assetBalance._sum.creditBalance || 0);
+      const totalLiabilities =
+        Number(liabilityBalance._sum.creditBalance || 0) -
+        Number(liabilityBalance._sum.debitBalance || 0);
+      const totalEquity =
+        Number(equityBalance._sum.creditBalance || 0) -
+        Number(equityBalance._sum.debitBalance || 0);
+      const totalRevenue =
+        Number(revenueBalance._sum.creditBalance || 0) -
+        Number(revenueBalance._sum.debitBalance || 0);
+      const totalExpenses =
+        Number(expenseBalance._sum.debitBalance || 0) -
+        Number(expenseBalance._sum.creditBalance || 0);
       const netProfit = totalRevenue - totalExpenses;
 
       return {
@@ -929,7 +998,9 @@ export class AccountingService {
       });
 
       if (!accountsReceivable || !salesRevenue || !salesTaxPayable) {
-        throw new BadRequestException('حسابات النظام غير متوفرة - يرجى إنشاء حسابات النظام أولاً');
+        throw new BadRequestException(
+          'حسابات النظام غير متوفرة - يرجى إنشاء حسابات النظام أولاً',
+        );
       }
 
       // إنشاء قيد المبيعات
@@ -999,7 +1070,9 @@ export class AccountingService {
       });
 
       if (!accountsPayable || !inventory) {
-        throw new BadRequestException('حسابات النظام غير متوفرة - يرجى إنشاء حسابات النظام أولاً');
+        throw new BadRequestException(
+          'حسابات النظام غير متوفرة - يرجى إنشاء حسابات النظام أولاً',
+        );
       }
 
       // إنشاء قيد المشتريات
@@ -1029,7 +1102,10 @@ export class AccountingService {
       this.logger.log(`تم إنشاء قيد المشتريات بنجاح`);
       return journalEntry;
     } catch (error) {
-      this.logger.error(`فشل في إنشاء قيد المشتريات: ${purchaseInvoiceId}`, error);
+      this.logger.error(
+        `فشل في إنشاء قيد المشتريات: ${purchaseInvoiceId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -1039,7 +1115,9 @@ export class AccountingService {
   /**
    * بناء كائن حساب GL مع التفاصيل
    */
-  private async buildGLAccountWithDetails(account: any): Promise<GLAccountWithDetails> {
+  private async buildGLAccountWithDetails(
+    account: any,
+  ): Promise<GLAccountWithDetails> {
     const [children, parent] = await Promise.all([
       this.prisma.gLAccount.findMany({
         where: { parentId: account.id },
@@ -1053,7 +1131,7 @@ export class AccountingService {
     ]);
 
     const childrenWithDetails = await Promise.all(
-      children.map(child => this.buildGLAccountWithDetails(child))
+      children.map((child) => this.buildGLAccountWithDetails(child)),
     );
 
     return {
@@ -1078,7 +1156,9 @@ export class AccountingService {
   /**
    * بناء كائن القيد اليومي مع التفاصيل
    */
-  private async buildJournalEntryWithDetails(entry: any): Promise<JournalEntryWithDetails> {
+  private async buildJournalEntryWithDetails(
+    entry: any,
+  ): Promise<JournalEntryWithDetails> {
     const lines = await this.prisma.journalEntryLine.findMany({
       where: { journalEntryId: entry.id },
       orderBy: { lineNumber: 'asc' },
@@ -1115,7 +1195,7 @@ export class AccountingService {
       isBalanced: Number(entry.totalDebit) === Number(entry.totalCredit),
       createdBy: entry.createdBy || undefined,
       creator: entry.creator || undefined,
-      lines: lines.map(line => ({
+      lines: lines.map((line) => ({
         id: line.id,
         journalEntryId: line.journalEntryId,
         lineNumber: line.lineNumber,
@@ -1137,7 +1217,10 @@ export class AccountingService {
   /**
    * التحقق من وجود حلقة في التسلسل الهرمي
    */
-  private async wouldCreateCycle(accountId: string, parentId: string): Promise<boolean> {
+  private async wouldCreateCycle(
+    accountId: string,
+    parentId: string,
+  ): Promise<boolean> {
     let currentId: string | null = parentId;
 
     while (currentId) {
