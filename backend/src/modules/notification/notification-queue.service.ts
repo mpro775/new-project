@@ -394,7 +394,7 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
 
       return {
         success: result.success,
-        messageId: result.messageId,
+        messageId: result.messageId || undefined,
         error: result.error,
       };
     } catch (error) {
@@ -421,7 +421,7 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
 
       return {
         success: result.success,
-        messageId: result.messageId,
+        messageId: result.messageId || undefined,
         error: result.error,
       };
     } catch (error) {
@@ -447,7 +447,7 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
 
       return {
         success: result.success,
-        messageId: result.messageId,
+        messageId: result.messageId || undefined,
         error: result.error,
       };
     } catch (error) {

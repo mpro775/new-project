@@ -25,6 +25,7 @@ export interface EmailMessage {
   subject: string;
   text?: string;
   html?: string;
+  replyTo?: string;
   attachments?: Array<{
     filename: string;
     content: string | Buffer;
@@ -39,7 +40,7 @@ export interface EmailMessage {
 
 export interface EmailResult {
   success: boolean;
-  messageId?: string;
+  messageId?: string | null;
   provider: string;
   error?: string;
   response?: any;
@@ -199,8 +200,10 @@ export class EmailProvider {
 
       // إضافة المرفقات
       message.attachments?.forEach((attachment, index) => {
-        const blob = new Blob([attachment.content], { type: attachment.contentType });
-        formData.append(`attachment`, blob, attachment.filename);
+        const content = Buffer.isBuffer(attachment.content)
+          ? attachment.content
+          : Buffer.from(attachment.content);
+        formData.append(`attachment`, content as any, attachment.filename);
       });
 
       // إضافة المتغيرات المخصصة

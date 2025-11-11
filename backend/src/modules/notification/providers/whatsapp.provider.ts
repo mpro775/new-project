@@ -132,12 +132,13 @@ export class WhatsAppProvider {
 
       const url = `${this.config.baseUrl}/${this.config.phoneNumberId}/messages`;
 
+      const { to, type, ...messageContent } = message;
       const messageData = {
         messaging_product: 'whatsapp',
         recipient_type: 'individual',
-        to: this.formatPhoneNumber(message.to),
-        type: message.type,
-        ...message,
+        to: this.formatPhoneNumber(to),
+        type,
+        ...messageContent,
       };
 
       const response = await fetch(url, {
@@ -176,11 +177,12 @@ export class WhatsAppProvider {
     try {
       const url = `${this.config.baseUrl}/messages`;
 
+      const { to, type, ...messageContent } = message;
       const messageData = {
         recipient_type: 'individual',
-        to: this.formatPhoneNumber(message.to),
-        type: message.type,
-        ...message,
+        to: this.formatPhoneNumber(to),
+        type,
+        ...messageContent,
       };
 
       const response = await fetch(url, {
@@ -483,6 +485,7 @@ export class WhatsAppProvider {
       case 'twilio':
         return {
           ...baseConfig,
+          apiVersion: 'v1',
           accountId: this.configService.get<string>('TWILIO_ACCOUNT_SID'),
           phoneNumberId: this.configService.get<string>('WHATSAPP_FROM_NUMBER'),
           baseUrl: '',
@@ -491,6 +494,7 @@ export class WhatsAppProvider {
       case 'local':
         return {
           ...baseConfig,
+          apiVersion: 'v1',
           baseUrl: '',
         };
 

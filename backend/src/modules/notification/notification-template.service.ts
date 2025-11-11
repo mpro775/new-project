@@ -656,7 +656,7 @@ export class NotificationTemplateService {
 
       for (const templateData of defaultTemplates) {
         try {
-          await this.createTemplate(templateData, 'system');
+          await this.createTemplate(templateData as CreateTemplateData, 'system');
           this.logger.log(`تم إنشاء القالب الافتراضي: ${templateData.name}`);
         } catch (error) {
           // إذا كان القالب موجود بالفعل، تخطيه

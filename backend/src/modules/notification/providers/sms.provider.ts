@@ -283,7 +283,7 @@ export class SMSProvider {
       // Nexmo يرجع مصفوفة من الرسائل
       const firstMessage = result.messages?.[0];
       if (!firstMessage || firstMessage.status !== '0') {
-        throw new Error(`Nexmo message failed: ${firstMessage?.error-text || 'Unknown error'}`);
+        throw new Error(`Nexmo message failed: ${firstMessage?.['error-text'] || 'Unknown error'}`);
       }
 
       return {

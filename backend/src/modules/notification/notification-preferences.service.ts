@@ -229,6 +229,22 @@ export class NotificationPreferencesService {
   /**
    * الحصول على التفضيلات الافتراضية
    */
+  getDefaultPreferences(): NotificationPreference[] {
+    const preferences: NotificationPreference[] = [];
+
+    for (const [event, eventPrefs] of Object.entries(this.defaultPreferences)) {
+      for (const [type, pref] of Object.entries(eventPrefs)) {
+        preferences.push({
+          notificationType: type as any,
+          event,
+          enabled: pref.enabled,
+          frequency: pref.frequency,
+        });
+      }
+    }
+
+    return preferences;
+  }
 
   /**
    * التحقق من إمكانية إرسال إشعار لمستخدم
