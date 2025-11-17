@@ -43,7 +43,13 @@
     "sync:test": "tsx scripts/test-sync.ts",
     "payment:test": "tsx scripts/test-payment.ts",
     "notification:test": "tsx scripts/test-notification.ts",
-    "storage:test": "tsx scripts/test-storage.ts"
+    "storage:test": "tsx scripts/test-storage.ts",
+    "monitoring:test": "tsx scripts/test-monitoring.ts",
+    "backup:test": "tsx scripts/test-backup.ts",
+    "backup:create": "tsx scripts/backup-manual.ts",
+    "backup:restore": "tsx scripts/backup-restore.ts",
+    "security:test": "tsx scripts/test-security.ts",
+    "performance:test": "tsx scripts/test-performance.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

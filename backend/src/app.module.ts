@@ -1,6 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR, APP_FILTER, APP_PIPE, APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { PrismaModule } from './shared/database/prisma.module';
 import { CacheModule } from './shared/cache/cache.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -21,6 +22,10 @@ import { SyncModule } from './modules/sync/sync.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { MonitoringModule } from './modules/monitoring/monitoring.module';
+import { BackupModule } from './modules/backup/backup.module';
+import { SecurityModule } from './modules/security/security.module';
+import { PerformanceModule } from './modules/performance/performance.module';
 import { CacheInterceptor } from './common/interceptors/cache.interceptor';
 import { CacheInvalidationInterceptor } from './common/interceptors/cache-invalidation.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -29,8 +34,10 @@ import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
 import { CustomValidationPipe } from './common/pipes/validation.pipe';
+import { SanitizationPipe } from './common/pipes/sanitization.pipe';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { PermissionGuard } from './common/guards/permission.guard';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -67,6 +74,16 @@ import appConfig from './config/app.config';
     PaymentModule,
     NotificationModule,
     StorageModule,
+    MonitoringModule,
+    BackupModule,
+    SecurityModule,
+    PerformanceModule,
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [
@@ -106,7 +123,15 @@ import appConfig from './config/app.config';
       provide: APP_PIPE,
       useClass: CustomValidationPipe,
     },
+    {
+      provide: APP_PIPE,
+      useClass: SanitizationPipe,
+    },
     // Guards - Global guards
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

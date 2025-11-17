@@ -259,7 +259,12 @@ model StockItem {
   @@map("stock_items")
   @@index([warehouseId])
   @@index([productVariantId])
-}
+  @@index([warehouseId, productVariantId])
+  @@index([quantity])
+  @@index([minStock])
+  @@index([warehouseId, quantity])
+  @@index([productVariantId, warehouseId, quantity])
+
 
 // حركات المخزون
 model StockMovement {
@@ -409,6 +414,11 @@ model SalesInvoice {
   @@index([status])
   @@index([paymentStatus])
   @@index([invoiceNumber])
+  @@index([branchId, status])
+  @@index([customerId, createdAt])
+  @@index([createdAt, status])
+  @@index([branchId, createdAt])
+  @@index([invoiceNumber, branchId])
 }
 
 model SalesInvoiceLine {
@@ -903,6 +913,11 @@ model AuditLog {
   @@index([referenceId])
   @@index([module])
   @@index([searchableText])
+  @@index([timestamp, severity])
+  @@index([entity, action, timestamp])
+  @@index([userId, timestamp])
+  @@index([module, timestamp])
+  @@index([category, severity, timestamp])
 }
 
 // دفعات المزامنة
@@ -1380,4 +1395,71 @@ model StorageBucket {
   @@map("storage_buckets")
   @@index([provider])
   @@index([isPublic])
+}
+
+// نظام النسخ الاحتياطي
+model BackupMetadata {
+  id              String   @id @default(cuid()) @db.VarChar(50)
+
+  // معرف النسخة الاحتياطية
+  backupId        String   @unique @db.VarChar(100)
+
+  // نوع النسخة الاحتياطية
+  type            String   @db.VarChar(20) // manual, scheduled, automatic
+
+  // حالة النسخة الاحتياطية
+  status          String   @db.VarChar(20) // pending, running, completed, failed
+
+  // معلومات الملف
+  path            String   @db.VarChar(500) // مسار الملف المشفر
+  size            BigInt   @default(0) // حجم الملف بالبايت
+  checksum        String   @db.VarChar(128) // SHA256 checksum
+  encrypted       Boolean  @default(true) // هل الملف مشفر
+
+  // معلومات الأداء
+  duration        BigInt   @default(0) // الوقت المستغرق بالميلي ثانية
+  compressionRatio Decimal? @db.Decimal(5, 2) // نسبة الضغط
+
+  // معلومات قاعدة البيانات
+  databaseVersion String?  @db.VarChar(50) // إصدار PostgreSQL
+  schemaVersion   String?  @db.VarChar(50) // إصدار الـ schema
+  recordCount     BigInt? // عدد السجلات المنسوخة
+
+  // معلومات الخطأ (في حالة الفشل)
+  error           String?  @db.Text
+  errorDetails    Json?    // تفاصيل إضافية للخطأ
+
+  // معلومات التشغيل
+  startedAt       DateTime?
+  completedAt     DateTime?
+  timestamp       DateTime @default(now()) // وقت إنشاء النسخة
+
+  // معلومات الاستعادة
+  restoredAt      DateTime? // آخر مرة تم استعادة هذه النسخة
+  restoredBy      String?  @db.VarChar(50) // User ID
+  restorer        User?    @relation(fields: [restoredBy], references: [id])
+
+  // معلومات الإنشاء
+  createdBy       String?  @db.VarChar(50) // User ID
+  creator         User?    @relation(fields: [createdBy], references: [id])
+
+  // معلومات الفرع (إن كانت النسخة مقتصرة على فرع معين)
+  branchId        String?  @db.VarChar(50)
+  branch          Branch?  @relation(fields: [branchId], references: [id])
+
+  // إعدادات النسخة
+  includeData     Boolean  @default(true) // تضمين البيانات
+  includeSchema   Boolean  @default(true) // تضمين الـ schema
+  includeFiles    Boolean  @default(false) // تضمين الملفات المرفوعة
+
+  @@map("backup_metadata")
+  @@index([backupId])
+  @@index([type])
+  @@index([status])
+  @@index([timestamp])
+  @@index([createdBy])
+  @@index([branchId])
+  @@index([restoredAt])
+  @@index([status, timestamp])
+  @@index([type, createdAt])
 }

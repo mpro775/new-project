@@ -4690,8 +4690,10 @@ PAYMENT_ENCRYPTION_KEY=your_32_character_encryption_key
 ### ✅ المرحلة 21: نظام التخزين (Storage System)
 تم تنفيذ نظام تخزين شامل يدعم رفع الملفات، التحسين التلقائي للصور، إنشاء الصور المصغرة، والتحكم في الوصول مع دعم S3 وتخزين محلي.
 
-### المراحل المتبقية (6 مراحل):
-22. نظام المراقبة (Monitoring System)
+### ✅ المرحلة 22: نظام المراقبة (Monitoring System)
+تم تنفيذ نظام مراقبة شامل يشمل OpenTelemetry، Prometheus metrics، Health checks، Sentry لتتبع الأخطاء، نظام سجلات محسن، ولوحات تحكم تفاعلية.
+
+### المراحل المتبقية (5 مراحل):
 23. نظام النسخ الاحتياطي (Backup System)
 24. تحسينات الأمان (Security Enhancements)
 25. تحسينات الأداء (Performance Optimization)
@@ -5506,6 +5508,441 @@ console.log(`Public link: ${publicLink}`);
 - **فواتير PDF**: تخزين فواتير المبيعات
 - **إيصالات الدفع**: حفظ إيصالات الدفع الرقمية
 - **عقود التجارة**: تخزين العقود والوثائق الرسمية
+
+## نظام المراقبة (Monitoring System)
+
+### نظرة عامة
+نظام مراقبة شامل يوفر مراقبة كاملة للتطبيق باستخدام أحدث التقنيات في مجال المراقبة والقياس.
+
+### المكونات الأساسية
+
+#### 1. OpenTelemetry (تتبع التوزيع)
+- **تتبع الطلبات**: تتبع شامل لجميع الطلبات والعمليات
+- **مقاييس الأداء**: قياس زمن الاستجابة ومعدلات الخطأ
+- **تتبع الأخطاء**: ربط الأخطاء بالطلبات والمستخدمين
+- **تكامل مع Jaeger**: تصدير البيانات إلى أدوات التتبع
+
+#### 2. Prometheus Metrics (المقاييس)
+- **مقاييس HTTP**: طلبات، استجابات، أخطاء
+- **مقاييس قاعدة البيانات**: اتصالات، استعلامات، أداء
+- **مقاييس الكاش**: معدل الإصابة، حجم البيانات
+- **مقاييس الأعمال**: مؤشرات الأداء الرئيسية
+
+#### 3. Health Checks (فحوصات الصحة)
+- **فحص قاعدة البيانات**: اتصال، استعلامات معلقة
+- **فحص الكاش**: أداء القراءة والكتابة
+- **فحص التخزين**: مساحة القرص، صلاحية الوصول
+- **فحص الخدمات الخارجية**: بوابات الدفع، خدمات الإشعارات
+
+#### 4. Sentry (تتبع الأخطاء)
+- **تتبع الأخطاء**: تلقائي مع سياق كامل
+- **تجميع الأخطاء**: منع تكرار نفس الخطأ
+- **إشعارات الأخطاء**: تنبيهات فورية للأخطاء الحرجة
+- **تحليل الأخطاء**: إحصائيات واتجاهات
+
+#### 5. نظام السجلات المحسن
+- **سجلات مصنفة**: تصنيف حسب المستوى والسياق
+- **بحث متقدم**: فلترة وبحث في السجلات
+- **تصدير السجلات**: JSON و CSV
+- **تنظيف تلقائي**: حذف السجلات القديمة
+
+#### 6. لوحات التحكم التفاعلية
+- **لوحات افتراضية**: لوحات جاهزة للاستخدام
+- **ودجتس مخصصة**: إنشاء ودجتس حسب الحاجة
+- **تحديث تلقائي**: بيانات محدثة في الوقت الفعلي
+- **صلاحيات مرنة**: تحكم في الوصول للوحات
+
+### APIs الرئيسية
+
+#### فحوصات الصحة
+```typescript
+// فحص صحة شامل
+GET /monitoring/health
+{
+  "overall": {
+    "status": "healthy",
+    "timestamp": "2025-01-11T10:00:00Z",
+    "duration": 45,
+    "details": {
+      "totalChecks": 4,
+      "passed": 4,
+      "warnings": 0,
+      "failed": 0
+    }
+  },
+  "components": {
+    "database": { "status": "healthy", "timestamp": "...", "duration": 12 },
+    "cache": { "status": "healthy", "timestamp": "...", "duration": 8 },
+    "storage": { "status": "healthy", "timestamp": "...", "duration": 15 },
+    "external": { "status": "healthy", "timestamp": "...", "duration": 10 }
+  }
+}
+
+// فحص مفصل لقاعدة البيانات
+GET /monitoring/health/database
+{
+  "status": "healthy",
+  "connectionPool": {
+    "total_connections": 10,
+    "active_connections": 3,
+    "idle_connections": 7
+  },
+  "activeConnections": 3,
+  "idleConnections": 7,
+  "pendingQueries": 0,
+  "slowQueries": []
+}
+```
+
+#### مقاييس Prometheus
+```typescript
+// مقاييس بتنسيق Prometheus
+GET /monitoring/metrics
+# HELP zaytuna_backend_http_requests_total Total number of HTTP requests
+# TYPE zaytuna_backend_http_requests_total counter
+zaytuna_backend_http_requests_total{method="GET",route="/api/health",status_code="200"} 150
+zaytuna_backend_http_requests_total{method="POST",route="/api/auth/login",status_code="200"} 45
+
+# HELP zaytuna_backend_active_connections Number of active connections
+# TYPE zaytuna_backend_active_connections gauge
+zaytuna_backend_active_connections{type="http"} 12
+zaytuna_backend_active_connections{type="websocket"} 3
+```
+
+#### السجلات
+```typescript
+// البحث في السجلات
+GET /monitoring/logs?level=error&context=HTTP&limit=50
+{
+  "logs": [
+    {
+      "timestamp": "2025-01-11T10:30:00Z",
+      "level": "error",
+      "message": "Database connection failed",
+      "context": "HTTP",
+      "userId": "user_123",
+      "ip": "192.168.1.100",
+      "method": "POST",
+      "url": "/api/orders",
+      "statusCode": 500,
+      "duration": 2500,
+      "error": {
+        "name": "DatabaseError",
+        "message": "Connection timeout",
+        "stack": "..."
+      }
+    }
+  ],
+  "total": 1,
+  "hasMore": false
+}
+
+// إحصائيات السجلات
+GET /monitoring/logs/stats
+{
+  "totalLogs": 1250,
+  "logsByLevel": {
+    "error": 15,
+    "warn": 45,
+    "log": 850,
+    "debug": 200,
+    "verbose": 140
+  },
+  "logsByContext": {
+    "HTTP": 600,
+    "DATABASE": 150,
+    "CACHE": 80,
+    "BUSINESS": 420
+  },
+  "oldestLog": "2025-01-01T00:00:00Z",
+  "newestLog": "2025-01-11T10:30:00Z",
+  "logFileSize": 5242880
+}
+```
+
+#### لوحات التحكم
+```typescript
+// قائمة لوحات التحكم
+GET /monitoring/dashboards?category=system
+[
+  {
+    "id": "system-overview",
+    "name": "نظرة عامة على النظام",
+    "description": "لوحة تحكم شاملة لمراقبة حالة النظام",
+    "category": "system",
+    "widgets": [...],
+    "layout": { "columns": 6, "rows": 10, "gap": 10 },
+    "permissions": ["dashboard.view"],
+    "isPublic": false,
+    "createdBy": "system",
+    "createdAt": "2025-01-11T00:00:00Z",
+    "updatedAt": "2025-01-11T00:00:00Z"
+  }
+]
+
+// لوحة تحكم محددة مع البيانات
+GET /monitoring/dashboards/system-overview
+{
+  "dashboard": { ... },
+  "data": {
+    "system-health": {
+      "overall": "healthy",
+      "components": { ... },
+      "details": { ... }
+    },
+    "active-users": {
+      "value": 45,
+      "change": 5.2,
+      "trend": "up"
+    },
+    "http-requests": {
+      "labels": ["00:00", "01:00", "02:00", ...],
+      "data": [120, 95, 110, ...]
+    }
+  },
+  "lastUpdated": "2025-01-11T10:30:00Z"
+}
+
+// إنشاء لوحة تحكم مخصصة
+POST /monitoring/dashboards
+{
+  "name": "مبيعات الفرع",
+  "description": "مراقبة مبيعات فرع محدد",
+  "category": "business",
+  "widgets": [
+    {
+      "id": "branch-sales",
+      "type": "chart",
+      "title": "مبيعات الفرع",
+      "position": { "x": 0, "y": 0, "width": 6, "height": 4 },
+      "config": {
+        "dataSource": "business",
+        "query": "branch_sales",
+        "refreshInterval": 300000,
+        "filters": { "branchId": "branch_123" }
+      }
+    }
+  ],
+  "layout": { "columns": 6, "rows": 6, "gap": 10 },
+  "permissions": ["dashboard.branch.view"],
+  "isPublic": false
+}
+```
+
+### أذونات RBAC
+- `monitoring.health`: قراءة فحوصات الصحة
+- `monitoring.metrics`: الوصول للمقاييس
+- `monitoring.logs`: قراءة وبحث السجلات
+- `monitoring.dashboards`: إدارة لوحات التحكم
+- `monitoring.admin`: إدارة كاملة للنظام
+
+### متغيرات البيئة
+```bash
+# OpenTelemetry
+OTEL_SERVICE_NAME=zaytuna-backend
+OTEL_SERVICE_VERSION=1.0.0
+OTEL_TRACES_EXPORTER=console
+OTEL_METRICS_EXPORTER=console
+OTEL_NODE_RESOURCE_DETECTORS=env,host,os
+
+# Prometheus
+PROMETHEUS_ENABLED=true
+PROMETHEUS_METRICS_PREFIX=zaytuna_backend_
+PROMETHEUS_DEFAULT_METRICS=true
+PROMETHEUS_GC_METRICS=true
+
+# Sentry
+SENTRY_DSN=https://your-dsn@sentry.io/project-id
+SENTRY_ENVIRONMENT=production
+SENTRY_TRACES_SAMPLE_RATE=0.1
+SENTRY_PROFILES_SAMPLE_RATE=0.1
+
+# Logging
+LOG_LEVEL=debug
+LOG_DIR=./logs
+LOG_MAX_FILES=30
+LOG_FORMAT=json
+
+# Health Checks
+HEALTH_CHECK_TIMEOUT=30000
+HEALTH_CHECK_DATABASE_ENABLED=true
+HEALTH_CHECK_CACHE_ENABLED=true
+HEALTH_CHECK_STORAGE_ENABLED=true
+HEALTH_CHECK_EXTERNAL_ENABLED=true
+
+# Dashboards
+DASHBOARD_REFRESH_INTERVAL=30000
+DASHBOARD_CACHE_TTL=300
+DASHBOARD_MAX_WIDGETS_PER_DASHBOARD=50
+```
+
+### اختبار النظام
+```bash
+# تشغيل اختبارات المراقبة
+npm run monitoring:test
+
+# الاختبارات تشمل:
+# - فحوصات الصحة الشاملة
+# - جمع المقاييس
+# - تتبع الأخطاء
+# - السجلات والإحصائيات
+# - لوحات التحكم
+# - APIs والتكامل
+```
+
+### مميزات متقدمة
+
+#### 1. تتبع شامل للأداء
+- **Distributed Tracing**: تتبع الطلبات عبر جميع الخدمات
+- **Performance Metrics**: مؤشرات الأداء الرئيسية
+- **Custom Spans**: تتبع عمليات مخصصة
+- **Error Correlation**: ربط الأخطاء بالطلبات
+
+#### 2. مراقبة الأعمال
+- **Business KPIs**: مؤشرات الأداء الرئيسية للأعمال
+- **Real-time Alerts**: تنبيهات فورية للمشاكل
+- **Trend Analysis**: تحليل الاتجاهات والتنبؤات
+- **Custom Dashboards**: لوحات مخصصة حسب الاحتياجات
+
+#### 3. إدارة السجلات الذكية
+- **Log Aggregation**: تجميع السجلات من مصادر متعددة
+- **Advanced Search**: بحث متقدم مع فلاتر معقدة
+- **Log Rotation**: إدارة تلقائية لملفات السجل
+- **Export & Backup**: تصدير ونسخ احتياطي للسجلات
+
+#### 4. لوحات تحكم تفاعلية
+- **Drag & Drop**: إنشاء لوحات بسهولة
+- **Real-time Updates**: تحديث البيانات تلقائياً
+- **Responsive Design**: متوافق مع جميع الأجهزة
+- **Sharing & Permissions**: مشاركة آمنة مع صلاحيات
+
+### أمثلة عملية
+
+```typescript
+// فحص صحة شامل قبل النشر
+const healthCheck = await monitoringService.checkAllHealth();
+if (healthCheck.overall.status !== 'healthy') {
+  console.error('التطبيق غير جاهز للنشر:', healthCheck.overall.details);
+  process.exit(1);
+}
+
+// تتبع أداء عملية أعمال
+const span = monitoringService.startTransaction('process-order', 'business');
+try {
+  // معالجة الطلب
+  await processOrder(orderData);
+
+  // تسجيل مقاييس الأعمال
+  monitoringService.recordBusinessMetric('orders_processed', 1);
+  monitoringService.recordBusinessMetric('revenue_generated', orderData.total);
+
+  span.setStatus('ok');
+} catch (error) {
+  span.setStatus('error', error.message);
+  monitoringService.captureException(error, {
+    user: orderData.customer,
+    tags: { operation: 'process-order' },
+  });
+  throw error;
+} finally {
+  span.finish();
+}
+
+// إنشاء لوحة تحكم لمراقبة المبيعات
+const salesDashboard = await dashboardService.createDashboard({
+  name: 'مراقبة المبيعات',
+  category: 'business',
+  widgets: [
+    {
+      type: 'chart',
+      title: 'المبيعات اليومية',
+      config: {
+        dataSource: 'business',
+        query: 'daily_sales_chart',
+        refreshInterval: 300000,
+      },
+    },
+    {
+      type: 'metric',
+      title: 'إجمالي المبيعات',
+      config: {
+        dataSource: 'business',
+        query: 'total_sales',
+      },
+    },
+  ],
+}, 'admin_user');
+
+// البحث في السجلات لتحليل مشكلة
+const errorLogs = await loggingService.queryLogs({
+  level: 'error',
+  startDate: new Date(Date.now() - 24 * 60 * 60 * 1000), // آخر 24 ساعة
+  context: 'PAYMENT',
+  limit: 100,
+});
+
+console.log(`تم العثور على ${errorLogs.total} خطأ في الدفع خلال 24 ساعة`);
+```
+
+### التكامل مع أدوات خارجية
+
+#### Grafana
+```yaml
+# grafana/provisioning/datasources/prometheus.yml
+apiVersion: 1
+datasources:
+  - name: Zaytuna Prometheus
+    type: prometheus
+    url: http://prometheus:9090
+    access: proxy
+    isDefault: true
+```
+
+#### Jaeger
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      COLLECTOR_OTLP_ENABLED: true
+```
+
+#### ELK Stack
+```yaml
+# filebeat.yml
+filebeat.inputs:
+- type: log
+  paths:
+    - /app/logs/*.log
+  json.keys_under_root: true
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+```
+
+### مقاييس الأداء
+
+#### استهلاك الموارد
+- **CPU Usage**: < 70% في الأوقات العادية
+- **Memory Usage**: < 80% من الذاكرة المتاحة
+- **Disk I/O**: < 50MB/s متوسط
+- **Network I/O**: < 100MB/s متوسط
+
+#### زمن الاستجابة
+- **API Response Time**: < 200ms للطلبات البسيطة
+- **Database Queries**: < 50ms متوسط
+- **Cache Hit Rate**: > 85%
+- **Error Rate**: < 1%
+
+#### توافر النظام
+- **Uptime**: > 99.9%
+- **Health Checks**: جميع الفحوصات ناجحة
+- **Alert Response**: < 5 دقائق للتنبيهات الحرجة
 
 ### المراحل القادمة
 - وحدات الأعمال الأساسية (Purchasing, Accounting, etc.)
