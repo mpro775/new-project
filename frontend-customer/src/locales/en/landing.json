@@ -1,0 +1,205 @@
+{
+  "hero": {
+    "title": "Your Complete Store Management System in One Place",
+    "subtitle": "Zaytuna - The Integrated Solution for Managing Your Business Easily and Efficiently",
+    "description": "A comprehensive point-of-sale system that supports inventory management, sales, purchases, and accounting. Works offline with automatic synchronization.",
+    "cta": {
+      "startFree": "Start Free",
+      "watchDemo": "Watch Demo"
+    },
+    "stats": {
+      "users": "Active Users",
+      "invoices": "Invoices Daily",
+      "stores": "Stores",
+      "satisfaction": "Customer Satisfaction"
+    }
+  },
+  "features": {
+    "title": "Key Features",
+    "subtitle": "Everything you need to manage your store efficiently",
+    "pos": {
+      "title": "Smart POS Interface",
+      "description": "Fast and easy-to-use point-of-sale system with barcode scanning and multiple payment support"
+    },
+    "inventory": {
+      "title": "Advanced Inventory Management",
+      "description": "Track inventory across branches with low stock alerts and automatic transfers"
+    },
+    "sales": {
+      "title": "Sales & Returns System",
+      "description": "Complete invoice and returns management with automatic printing and payment tracking"
+    },
+    "accounting": {
+      "title": "Basic Accounting",
+      "description": "Integrated chart of accounts with automatic entries and comprehensive financial reports"
+    },
+    "reports": {
+      "title": "Reports & Analytics",
+      "description": "Interactive dashboards and detailed reports for informed decision-making"
+    },
+    "branches": {
+      "title": "Multi-Branch Support",
+      "description": "Manage multiple branches and warehouses from one account with data isolation"
+    },
+    "offline": {
+      "title": "Offline Operation",
+      "description": "The system works fully offline with automatic synchronization when connected"
+    },
+    "security": {
+      "title": "Advanced Security",
+      "description": "Multi-factor authentication, data encryption, and fine-grained user permissions"
+    }
+  },
+  "benefits": {
+    "title": "Why Choose Zaytuna?",
+    "subtitle": "Real benefits for your business",
+    "time": {
+      "title": "Save Time & Effort",
+      "description": "Automate routine processes and reduce manual errors"
+    },
+    "sales": {
+      "title": "Increase Sales",
+      "description": "Better inventory management and improved customer experience"
+    },
+    "inventory": {
+      "title": "Better Inventory Management",
+      "description": "Accurate tracking and smart alerts to avoid stockouts"
+    },
+    "reports": {
+      "title": "Accurate Reports",
+      "description": "Reliable data for making correct business decisions"
+    },
+    "ease": {
+      "title": "Easy to Use",
+      "description": "Intuitive interface that doesn't require long training"
+    },
+    "support": {
+      "title": "Continuous Technical Support",
+      "description": "Support team ready to help you anytime"
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works?",
+    "subtitle": "Get started in three simple steps",
+    "step1": {
+      "title": "Sign Up Free",
+      "description": "Create your account in minutes without a credit card"
+    },
+    "step2": {
+      "title": "Set Up Your Store",
+      "description": "Add your products, branches, and users easily"
+    },
+    "step3": {
+      "title": "Start Selling",
+      "description": "Start using the system and push your store forward"
+    }
+  },
+  "pricing": {
+    "title": "Start Free",
+    "subtitle": "Get started with no hidden costs",
+    "free": {
+      "title": "Free Trial",
+      "description": "Try all features for 14 days with no restrictions"
+    },
+    "cta": "Start Now"
+  },
+  "testimonials": {
+    "title": "What Our Customers Say",
+    "subtitle": "Thousands of stores trust Zaytuna"
+  },
+  "demo": {
+    "title": "See Zaytuna in Action",
+    "subtitle": "Learn how the system works",
+    "watchVideo": "Watch Video",
+    "requestDemo": "Request Demo"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Answers to the most common questions",
+    "q1": {
+      "question": "Can I use the system without internet?",
+      "answer": "Yes, Zaytuna works fully offline with automatic synchronization when connected to the internet."
+    },
+    "q2": {
+      "question": "How many branches can I manage?",
+      "answer": "You can manage unlimited branches and warehouses from one account."
+    },
+    "q3": {
+      "question": "Do I need training to use the system?",
+      "answer": "No, Zaytuna's interface is intuitive and easy to use. We also provide full technical support to help you."
+    },
+    "q4": {
+      "question": "What payment methods are available?",
+      "answer": "We accept cash, credit cards, e-wallets, and deferred payment."
+    },
+    "q5": {
+      "question": "Is my data secure?",
+      "answer": "Yes, we use the latest encryption and security technologies to protect your data. We also provide automatic backups."
+    },
+    "q6": {
+      "question": "How can I get technical support?",
+      "answer": "You can contact us via email, phone, or live chat. Our team is ready to help you 24/7."
+    }
+  },
+  "cta": {
+    "title": "Ready to Get Started?",
+    "subtitle": "Join thousands of stores that trust Zaytuna",
+    "button": "Create Free Account"
+  },
+  "header": {
+    "logo": "Zaytuna",
+    "nav": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "about": "About",
+      "support": "Support",
+      "blog": "Blog"
+    },
+    "login": "Login",
+    "signup": "Sign Up"
+  },
+  "footer": {
+    "product": {
+      "title": "Product",
+      "features": "Features",
+      "pricing": "Pricing",
+      "updates": "Updates",
+      "roadmap": "Roadmap"
+    },
+    "company": {
+      "title": "Company",
+      "about": "About",
+      "blog": "Blog",
+      "careers": "Careers",
+      "contact": "Contact"
+    },
+    "support": {
+      "title": "Support",
+      "help": "Help Center",
+      "documentation": "Documentation",
+      "api": "API",
+      "status": "System Status"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookies"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address"
+    },
+    "social": {
+      "title": "Follow Us",
+      "twitter": "Twitter",
+      "facebook": "Facebook",
+      "linkedin": "LinkedIn",
+      "instagram": "Instagram"
+    },
+    "copyright": "All rights reserved © 2024 Zaytuna SaaS"
+  }
+}
+

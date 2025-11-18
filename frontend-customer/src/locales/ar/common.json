@@ -1,0 +1,197 @@
+{
+  "app": {
+    "name": "زيتونة SaaS",
+    "description": "نظام إدارة الأعمال الشامل",
+    "loading": "جارٍ التحميل...",
+    "error": "حدث خطأ",
+    "success": "تم بنجاح",
+    "warning": "تحذير",
+    "info": "معلومات",
+    "status": "حالة النظام"
+  },
+  "auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "username": "اسم المستخدم",
+      "password": "كلمة المرور",
+      "submit": "تسجيل الدخول",
+      "loggingIn": "جارٍ تسجيل الدخول...",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "noAccount": "ليس لديك حساب؟",
+      "createAccount": "إنشاء حساب",
+      "errors": {
+        "invalidCredentials": "اسم المستخدم أو كلمة المرور غير صحيحة",
+        "networkError": "خطأ في الشبكة. يرجى المحاولة لاحقاً",
+        "tooManyAttempts": "تم تجاوز عدد المحاولات المسموحة"
+      }
+    },
+    "twoFactor": {
+      "title": "التحقق من الهوية",
+      "description": "أدخل رمز الأمان المرسل إليك",
+      "code": "رمز الأمان",
+      "verify": "تحقق",
+      "verifying": "جارٍ التحقق...",
+      "resend": "إعادة إرسال الرمز",
+      "sentTo": "تم إرسال الرمز إلى",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "invalid": "رمز الأمان غير صحيح"
+    },
+    "logout": {
+      "title": "تسجيل الخروج",
+      "confirm": "هل أنت متأكد من تسجيل الخروج؟",
+      "success": "تم تسجيل الخروج بنجاح"
+    }
+  },
+  "navigation": {
+    "dashboard": "لوحة المؤشرات",
+    "products": "إدارة المنتجات",
+    "inventory": "إدارة المخزون",
+    "sales": "إدارة المبيعات",
+    "customers": "إدارة العملاء",
+    "reports": "التقارير",
+    "settings": "الإعدادات",
+    "users": "إدارة المستخدمين",
+    "branches": "إدارة الفروع"
+  },
+  "dashboard": {
+    "title": "لوحة المؤشرات",
+    "welcome": "مرحباً بك في لوحة تحكم زيتونة SaaS",
+    "description": "هذه هي الصفحة الرئيسية لنظام إدارة الأعمال",
+    "error": "حدث خطأ في تحميل البيانات",
+    "noData": "لا توجد بيانات",
+    "forceRefresh": "تحديث كامل",
+    "allBranches": "جميع الفروع",
+    "stats": {
+      "totalSales": "إجمالي المبيعات",
+      "totalProducts": "إجمالي المنتجات",
+      "totalCustomers": "إجمالي العملاء",
+      "lowStock": "منتجات قليلة المخزون",
+      "dailySales": "مبيعات اليوم",
+      "weeklySales": "مبيعات الأسبوع",
+      "monthlySales": "مبيعات الشهر"
+    },
+    "kpis": {
+      "sales": "المبيعات",
+      "orders": "الطلبات",
+      "totalSales": "إجمالي المبيعات",
+      "totalOrders": "إجمالي الطلبات",
+      "totalCustomers": "إجمالي العملاء",
+      "lowStockItems": "منتجات منخفضة المخزون"
+    },
+    "charts": {
+      "sales": {
+        "title": "اتجاهات المبيعات"
+      }
+    },
+    "filters": {
+      "title": "فلاتر البيانات",
+      "startDate": "تاريخ البداية",
+      "endDate": "تاريخ النهاية",
+      "branch": "الفرع"
+    },
+    "alerts": {
+      "inventory": "تنبيهات المخزون",
+      "noAlerts": "لا توجد تنبيهات مخزون",
+      "moreAlerts": "{{count}} تنبيهات أخرى"
+    },
+    "trend": {
+      "monthly": "شهري"
+    }
+  },
+  "common": {
+    "actions": {
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "add": "إضافة",
+      "search": "بحث",
+      "filter": "فلترة",
+      "refresh": "تحديث",
+      "export": "تصدير",
+      "import": "استيراد",
+      "view": "عرض",
+      "back": "العودة",
+      "next": "التالي",
+      "previous": "السابق",
+      "close": "إغلاق",
+      "confirm": "تأكيد",
+      "yes": "نعم",
+      "no": "لا",
+      "welcome": "مرحباً، {{name}}"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "pending": "في الانتظار",
+      "completed": "مكتمل",
+      "cancelled": "ملغي",
+      "error": "خطأ"
+    },
+    "messages": {
+      "confirmDelete": "هل أنت متأكد من حذف هذا العنصر؟",
+      "deleteSuccess": "تم حذف العنصر بنجاح",
+      "saveSuccess": "تم حفظ البيانات بنجاح",
+      "updateSuccess": "تم تحديث البيانات بنجاح",
+      "loading": "جارٍ التحميل...",
+      "noData": "لا توجد بيانات",
+      "noResults": "لا توجد نتائج",
+      "systemNormal": "النظام يعمل بشكل طبيعي"
+    },
+    "user": "المستخدم",
+    "validation": {
+      "required": "هذا الحقل مطلوب",
+      "email": "يرجى إدخال بريد إلكتروني صحيح",
+      "minLength": "يجب أن يكون الطول أكثر من {{min}} أحرف",
+      "maxLength": "يجب أن يكون الطول أقل من {{max}} حرف",
+      "numeric": "يجب أن يكون رقماً",
+      "positive": "يجب أن يكون رقماً موجباً"
+    }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "language": {
+      "title": "اللغة",
+      "arabic": "العربية",
+      "english": "الإنجليزية",
+      "switch": "تبديل اللغة"
+    },
+    "theme": {
+      "title": "المظهر",
+      "light": "فاتح",
+      "dark": "داكن",
+      "auto": "تلقائي"
+    }
+  },
+  "inventory": {
+    "currentStock": "المخزون الحالي",
+    "reorderPoint": "نقطة إعادة الطلب",
+    "status": {
+      "critical": "حرج",
+      "warning": "تحذير",
+      "normal": "عادي"
+    }
+  },
+  "branch": {
+    "main": "الفرع الرئيسي",
+    "secondary": "الفرع الثانوي"
+  },
+  "table": {
+    "noData": "لا توجد بيانات",
+    "loading": "جارٍ التحميل...",
+    "rowsPerPage": "عدد الصفوف في الصفحة:",
+    "of": "من",
+    "search": "بحث...",
+    "filter": "فلترة",
+    "sort": "ترتيب"
+  },
+  "pagination": {
+    "first": "الأول",
+    "last": "الأخير",
+    "next": "التالي",
+    "previous": "السابق",
+    "page": "الصفحة",
+    "of": "من"
+  }
+}

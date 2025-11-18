@@ -1,0 +1,197 @@
+{
+  "app": {
+    "name": "Zaytuna SaaS",
+    "description": "Comprehensive Business Management System",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information",
+    "status": "System Status"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Login",
+      "loggingIn": "Logging in...",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create account",
+      "errors": {
+        "invalidCredentials": "Invalid username or password",
+        "networkError": "Network error. Please try again later",
+        "tooManyAttempts": "Too many attempts. Please try again later"
+      }
+    },
+    "twoFactor": {
+      "title": "Two-Factor Authentication",
+      "description": "Enter the security code sent to you",
+      "code": "Security Code",
+      "verify": "Verify",
+      "verifying": "Verifying...",
+      "resend": "Resend Code",
+      "sentTo": "Code sent to",
+      "phone": "phone number",
+      "email": "email address",
+      "invalid": "Invalid security code"
+    },
+    "logout": {
+      "title": "Logout",
+      "confirm": "Are you sure you want to logout?",
+      "success": "Successfully logged out"
+    }
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "products": "Products Management",
+    "inventory": "Inventory Management",
+    "sales": "Sales Management",
+    "customers": "Customer Management",
+    "reports": "Reports",
+    "settings": "Settings",
+    "users": "User Management",
+    "branches": "Branch Management"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to Zaytuna SaaS Control Panel",
+    "description": "This is the main page of the business management system",
+    "error": "Error loading data",
+    "noData": "No data available",
+    "forceRefresh": "Force Refresh",
+    "allBranches": "All Branches",
+    "stats": {
+      "totalSales": "Total Sales",
+      "totalProducts": "Total Products",
+      "totalCustomers": "Total Customers",
+      "lowStock": "Low Stock Products",
+      "dailySales": "Daily Sales",
+      "weeklySales": "Weekly Sales",
+      "monthlySales": "Monthly Sales"
+    },
+    "kpis": {
+      "sales": "Sales",
+      "orders": "Orders",
+      "totalSales": "Total Sales",
+      "totalOrders": "Total Orders",
+      "totalCustomers": "Total Customers",
+      "lowStockItems": "Low Stock Items"
+    },
+    "charts": {
+      "sales": {
+        "title": "Sales Trends"
+      }
+    },
+    "filters": {
+      "title": "Data Filters",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "branch": "Branch"
+    },
+    "alerts": {
+      "inventory": "Inventory Alerts",
+      "noAlerts": "No inventory alerts",
+      "moreAlerts": "{{count}} more alerts"
+    },
+    "trend": {
+      "monthly": "monthly"
+    }
+  },
+  "common": {
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "add": "Add",
+      "search": "Search",
+      "filter": "Filter",
+      "refresh": "Refresh",
+      "export": "Export",
+      "import": "Import",
+      "view": "View",
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "close": "Close",
+      "confirm": "Confirm",
+      "yes": "Yes",
+      "no": "No",
+      "welcome": "Welcome, {{name}}"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "error": "Error"
+    },
+    "messages": {
+      "confirmDelete": "Are you sure you want to delete this item?",
+      "deleteSuccess": "Item deleted successfully",
+      "saveSuccess": "Data saved successfully",
+      "updateSuccess": "Data updated successfully",
+      "loading": "Loading...",
+      "noData": "No data available",
+      "noResults": "No results found",
+      "systemNormal": "System is running normally"
+    },
+    "user": "User",
+    "validation": {
+      "required": "This field is required",
+      "email": "Please enter a valid email address",
+      "minLength": "Must be at least {{min}} characters",
+      "maxLength": "Must be less than {{max}} characters",
+      "numeric": "Must be a number",
+      "positive": "Must be a positive number"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "title": "Language",
+      "arabic": "Arabic",
+      "english": "English",
+      "switch": "Switch Language"
+    },
+    "theme": {
+      "title": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto"
+    }
+  },
+  "inventory": {
+    "currentStock": "Current Stock",
+    "reorderPoint": "Reorder Point",
+    "status": {
+      "critical": "Critical",
+      "warning": "Warning",
+      "normal": "Normal"
+    }
+  },
+  "branch": {
+    "main": "Main Branch",
+    "secondary": "Secondary Branch"
+  },
+  "table": {
+    "noData": "No data available",
+    "loading": "Loading...",
+    "rowsPerPage": "Rows per page:",
+    "of": "of",
+    "search": "Search...",
+    "filter": "Filter",
+    "sort": "Sort"
+  },
+  "pagination": {
+    "first": "First",
+    "last": "Last",
+    "next": "Next",
+    "previous": "Previous",
+    "page": "Page",
+    "of": "of"
+  }
+}
